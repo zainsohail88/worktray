@@ -36,7 +36,7 @@ def _ask_setting(store: Store, field: Setting) -> None:
             return
         except ValueError as error:
             print(f"    {error}")
-    print(f"    Skipped {field.label}; set it later in Settings or with {field.env}")
+    print(f"    Skipped {field.label}. Set it later in Settings or with {field.env}")
 
 
 def _ask_secret(field: Secret) -> None:
@@ -110,11 +110,11 @@ async def run(store: Store, names: list[str], check_only: bool = False, reconnec
     on = enabled_sources(store, sources)
     selected = [sources[name] for name in names] if names else [source for source in sources.values() if source.name in on]
     if not selected:
-        print("No sources are on yet. Name the ones to set up, as in worktray auth jira github, or turn them on in Settings.")
+        print("No sources are on yet. Name the sources to set up, such as worktray auth jira github, or turn them on in Settings.")
         return 1
     interactive = sys.stdin.isatty() and not check_only
     if not check_only and not sys.stdin.isatty():
-        print("Not a terminal, so only checking. Save values in the Settings page or with worktray config set.")
+        print("Not a terminal, so only checking. Save values in Settings or with worktray config set.")
     outcomes: dict[str, str] = {}
     for source in selected:
         print(f"\n{source.label}")
@@ -129,7 +129,7 @@ async def run(store: Store, names: list[str], check_only: bool = False, reconnec
                 ask(store, source, reconnect)
                 # Setting a source up is choosing it; an explicit off stays off.
                 if not switch_on_if_unset(store, source.name):
-                    print("  It's switched off; turn it on in Settings or with worktray sources enable " + source.name)
+                    print("  It is off. Turn it on in Settings or with worktray sources enable " + source.name)
             outcomes[source.name] = await verify(store, sources, source, interactive, reconnect)
         except (SourceError, httpx.HTTPError, OSError, ValueError, TimeoutError) as error:
             # One source that breaks must not stop the others from being set up.

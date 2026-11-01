@@ -76,7 +76,7 @@ def render(platform: str = sys.platform) -> ServiceFile:
         variables = "\n".join(f'Environment="{name}={value}"' for name, value in environment().items())
         content = f"[Unit]\nDescription={APP_NAME} dashboard\n\n[Service]\nExecStart={shlex.join(command())}\n{variables}\nRestart=on-failure\nRestartSec=10\n\n[Install]\nWantedBy=default.target\n"
         return ServiceFile(config_home() / "systemd/user" / f"{APP_NAME}.service", content)
-    raise SystemExit("Background service is supported on macOS and Linux only")
+    raise SystemExit("The background service works on macOS and Linux only.")
 
 
 def _run(*args: str, check: bool = True) -> subprocess.CompletedProcess:
@@ -84,7 +84,7 @@ def _run(*args: str, check: bool = True) -> subprocess.CompletedProcess:
     try:
         return subprocess.run(args, check=check, text=True, capture_output=True)
     except FileNotFoundError:
-        raise SystemExit(f"{args[0]} was not found; the background service needs it on this system") from None
+        raise SystemExit(f"{args[0]} was not found. The background service needs it.") from None
     except subprocess.CalledProcessError as error:
         detail = (error.stderr or error.stdout or "").strip() or f"exit status {error.returncode}"
         raise SystemExit(f"{shlex.join(args)} failed: {detail}") from None
@@ -129,7 +129,7 @@ def install() -> None:
     service = render()
     _stop_existing()
     if not port_free():
-        raise SystemExit(f"Port {port()} is in use, probably by a copy started with worktray serve. Stop it, or pick another port with {PORT_ENV}, then install again.")
+        raise SystemExit(f"Port {port()} is in use, probably by worktray serve in a terminal. Stop it or set another port with {PORT_ENV}, then install again.")
     service.path.parent.mkdir(parents=True, exist_ok=True)
     home().mkdir(parents=True, exist_ok=True, mode=0o700)
     service.path.write_text(service.content)
@@ -143,7 +143,7 @@ def install() -> None:
         _run("systemctl", "--user", "enable", "--now", f"{APP_NAME}.service")
     if not _wait_until_answering():
         raise SystemExit(f"Installed, but nothing answered on port {port()} within {READY_SECONDS} seconds. See worktray service logs.")
-    print(f"Installed. {APP_NAME} starts at login and restarts if it stops: http://localhost:{port()}/")
+    print(f"Installed. {APP_NAME} starts at login and restarts if it crashes: http://localhost:{port()}/")
 
 
 def uninstall() -> None:

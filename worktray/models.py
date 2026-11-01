@@ -59,13 +59,13 @@ def web_link_problem(url: str) -> str:
         host = parts.hostname
         parts.port  # noqa: B018 - raises ValueError for a port that is not a number
     except ValueError:
-        return "That isn't a valid URL"
+        return "That is not a valid URL"
     if parts.username is not None or parts.password is not None:
         return "Leave the user name and password out of the URL"
     if not host or parts.scheme not in ("https", "http"):
         return "Use an https:// URL"
     if parts.scheme == "http" and host not in LOCAL_HOSTS:
-        return "Use an https:// URL; plain http works only for a server on this machine"
+        return "Use an https:// URL. Plain http works only for a server on this machine."
     return ""
 
 
@@ -147,7 +147,7 @@ class ItemEdit(BaseModel):
     def aware_timestamp(cls, value: str | None) -> str | None:
         """Accept an ISO instant with a timezone, or an empty string to wake the item."""
         if value and datetime.fromisoformat(value.replace("Z", "+00:00")).tzinfo is None:
-            raise ValueError("Snooze time needs a timezone")
+            raise ValueError("Snooze time needs a time zone")
         return value
 
 

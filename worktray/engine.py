@@ -175,7 +175,7 @@ class Engine:
                 self.start(self.due())
             except (sqlite3.Error, ValueError):
                 # A locked database or a bad saved schedule must not end scheduling for the life of the process.
-                logger.error("Scheduled refresh tick failed; retrying on the next tick", exc_info=True)
+                logger.error("Scheduled refresh tick failed, retrying on the next tick", exc_info=True)
             await asyncio.sleep(tick)
 
     def start(self, sources: list[str] | None = None) -> list[str]:
@@ -184,7 +184,7 @@ class Engine:
         if set(selected) - set(self.adapters):
             raise ValueError("Unknown refresh source")
         if set(selected) - enabled_sources(self.store, selected):
-            raise ValueError("That source is turned off; turn it on in Settings first")
+            raise ValueError("That source is off. Turn it on in Settings first.")
         started = []
         for source in selected:
             if source not in self.tasks or self.tasks[source].done():
@@ -290,11 +290,11 @@ class Engine:
             team = GITHUB_TEAM.read(self.store)
         except SourceError:
             team = ""
-        members = f", and by members of the {team} GitHub team" if "/" in team else ""
+        members = f" and by members of the {team} GitHub team" if "/" in team else ""
         return (
-            "Counts tickets in your Jira scope that were updated in the last 90 days, and pull requests "
+            "Counts tickets in your Jira scope updated in the last 90 days and pull requests "
             f"opened in the last 90 days by the same people{members}. "
-            "Jira doesn't know who has left your team, so hide them with Hide member. "
+            "Jira does not know who has left your team, so hide them with Hide member. "
             "The numbers show visible work, not effort."
         )
 
