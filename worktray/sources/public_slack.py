@@ -156,7 +156,7 @@ async def probe(url: str, browser: bool = False) -> None:
         sign_in = _sign_in_error(error)
         if sign_in:
             raise sign_in from error
-        raise SourceError("Couldn't connect to the Slack search server. Check the URL and that you're online.") from error
+        raise SourceError("Could not connect to the Slack search server. Check the URL and that you are online.") from error
     finally:
         auth_log.setLevel(level)
 

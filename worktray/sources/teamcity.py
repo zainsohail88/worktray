@@ -48,7 +48,7 @@ async def check_teamcity(store: Store, transport: httpx.AsyncBaseTransport | Non
     async with _client(config, transport) as client:
         response = await client.get("/app/rest/server", params={"fields": "version"})
     if response.status_code in (401, 403):
-        raise SourceError("TeamCity didn't accept the access token. Replace it in Settings.")
+        raise SourceError("TeamCity did not accept the access token. Replace it in Settings.")
     if response.status_code >= 400:
         raise SourceError(f"TeamCity answered with HTTP {response.status_code}. Check the URL and that the server is reachable.")
     return f"Connected to {urlsplit(config['TEAMCITY_URL']).netloc}, TeamCity {response.json().get('version', 'unknown version')}."
@@ -69,7 +69,7 @@ async def enrich_checks(store: Store, items: list[Item], transport: httpx.AsyncB
     try:
         config = await asyncio.to_thread(teamcity_config, store)
     except (SourceError, ValueError) as error:
-        logger.warning("TeamCity credentials unreadable; keeping check names: %s", error)
+        logger.warning("Could not read the TeamCity credentials, keeping the check names: %s", error)
         return items
     if not all(config.values()):
         return items

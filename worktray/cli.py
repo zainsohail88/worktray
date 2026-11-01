@@ -106,7 +106,7 @@ def config(action: str, key: str | None, value: str | None) -> int:
         print(f"Give a value: worktray config set {key} VALUE. To clear it, use worktray config unset {key}.", file=sys.stderr)
         return 2
     if field.locked():
-        print(f"{field.env} is exported in this shell, so a saved value would be ignored.", file=sys.stderr)
+        print(f"{field.env} is set in this shell, so a saved value would be ignored.", file=sys.stderr)
         return 1
     try:
         if action == "unset":
@@ -125,31 +125,31 @@ def config(action: str, key: str | None, value: str | None) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    root = argparse.ArgumentParser(prog=APP_NAME, description="Your work from Jira, GitHub, Bitbucket, Google Calendar, meeting notes, Slack and coding agents, in one local queue.")
+    root = argparse.ArgumentParser(prog=APP_NAME, description="A local dashboard that collects your work from different sources into one view.")
     root.add_argument("--version", action="version", version=f"{APP_NAME} {__version__}")
     commands = root.add_subparsers(dest="command", metavar="command")
 
-    serve_command = commands.add_parser("serve", help="start the dashboard (the default)")
+    serve_command = commands.add_parser("serve", help="start the dashboard. This is the default command.")
     serve_command.add_argument("--port", type=int, help="port to listen on (default WORKTRAY_PORT or 8765)")
     serve_command.add_argument("--open", action="store_true", help="open the dashboard in the browser")
 
     auth_command = commands.add_parser("auth", help="set up sources in the terminal")
-    auth_command.add_argument("source", nargs="*", help="sources to set up; every switched-on source when omitted")
+    auth_command.add_argument("source", nargs="*", help="sources to set up. Leave out to set up every source that is on.")
     auth_command.add_argument("--check", action="store_true", help="only check existing connections")
-    auth_command.add_argument("--reconnect", action="store_true", help="ask again and sign in again")
+    auth_command.add_argument("--reconnect", action="store_true", help="ask for every value again and sign in again")
 
-    commands.add_parser("mcp", help="serve MCP tools over stdio for coding agents (needs the mcp extra)")
+    commands.add_parser("mcp", help="run the MCP server for coding agents (needs the MCP extra)")
 
     sources_command = commands.add_parser("sources", help="list sources, or turn one on or off")
     sources_command.add_argument("action", nargs="?", choices=["list", "enable", "disable"], default="list")
     sources_command.add_argument("name", nargs="?")
 
-    config_command = commands.add_parser("config", help="list settings, or set and clear one")
+    config_command = commands.add_parser("config", help="list settings, or set or clear one")
     config_command.add_argument("action", nargs="?", choices=["list", "set", "unset"], default="list")
     config_command.add_argument("key", nargs="?")
-    config_command.add_argument("value", nargs="?", help="omit for a secret to type it hidden")
+    config_command.add_argument("value", nargs="?", help="leave out for a token to type it hidden")
 
-    service_command = commands.add_parser("service", help="run in the background at login (macOS launchd, Linux systemd)")
+    service_command = commands.add_parser("service", help="run worktray in the background at login (launchd on macOS, systemd on Linux)")
     service_command.add_argument("action", choices=["install", "uninstall", "restart", "status", "logs", "print"])
     return root
 

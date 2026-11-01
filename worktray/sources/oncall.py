@@ -154,7 +154,7 @@ async def read_oncall(store: Store) -> Batch:
         mine = await search_issues(client, "assignee = currentUser() AND statusCategory != Done", fields="project")
         projects = Counter(issue["fields"]["project"]["key"] for issue in mine)
         if not projects:
-            raise SourceError("No open tickets are assigned to you, so worktray can't tell which project is yours.")
+            raise SourceError("No open tickets are assigned to you, so worktray cannot tell which project is yours.")
         project = projects.most_common(1)[0][0]
         epics = await search_issues(client, epic_query(project, keyword), fields="summary")
         if not epics:
@@ -167,7 +167,7 @@ async def read_oncall(store: Store) -> Batch:
     except SourceError as error:
         # The epic list is useful without the rotation, so an unreadable schedule only blanks the shift.
         shift = None
-        shift_detail = f". Couldn't read the on-call schedule: {error}"
+        shift_detail = f". Could not read the on-call schedule: {error}"
     store.save_setting(ONCALL_EPIC_SETTING, epic.model_dump_json())
     store.save_setting(ON_CALL_SETTING, shift.model_dump_json() if shift else "")
     items = [oncall_item(issue, base_url, my_id, at) for issue in children]

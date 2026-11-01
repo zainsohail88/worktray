@@ -20,7 +20,7 @@ from worktray.sources.errors import SourceError
 # Seconds a value read from the keyring is reused. Each Settings page load and each sync reads
 # several tokens, and some keyrings take a noticeable time to answer.
 CACHE_SECONDS = 60
-UNAVAILABLE = "Can't reach your system keychain. Unlock it, or on Linux install one such as GNOME Keyring. You can also set tokens as WORKTRAY_ environment variables."
+UNAVAILABLE = "Cannot reach your system keyring. Unlock it, or on Linux install one such as GNOME Keyring. You can also set tokens as WORKTRAY_ environment variables."
 
 
 class KeyringStore:

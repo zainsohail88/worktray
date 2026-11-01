@@ -25,7 +25,7 @@ GOOGLE_CLIENT_FILE = Setting(
     "google_client_file",
     "Google OAuth client file",
     help="A Desktop OAuth client from Google Cloud, with the Drive and Calendar APIs turned on. Leave blank to use the client_secret file in your Downloads folder.",
-    placeholder="~/Downloads/client_secret_….json",
+    placeholder="~/Downloads/client_secret_ID.json",
     validate=lambda value: _client_file(value),
 )
 FIELDS = (GOOGLE_CLIENT_FILE,)
@@ -138,7 +138,7 @@ def _receive_code(client_id: str, cancelled: threading.Event) -> tuple[str, str,
         while not received and not cancelled.is_set() and time.monotonic() < deadline:
             server.handle_request()
     if received.get("error"):
-        raise SourceError("Google sign-in was cancelled. Sign in again when you're ready.")
+        raise SourceError("Google sign-in was cancelled. Sign in again when you are ready.")
     if not received.get("code"):
         raise SourceError("Google sign-in timed out. Try again.")
     return received["code"][0], redirect, verifier
@@ -167,13 +167,13 @@ async def sign_in(credential: Credential) -> Credential:
     except ValueError as error:
         raise SourceError("Google returned an invalid sign-in response") from error
     if response.status_code != 200 or not isinstance(tokens, dict):
-        raise SourceError("Google sign-in didn't work. Check the OAuth client file and try again.")
+        raise SourceError("Google sign-in did not work. Check the OAuth client file and try again.")
     try:
         lifetime = float(tokens.get("expires_in", 0))
     except (TypeError, ValueError):
         lifetime = 0
     if not isinstance(tokens.get("refresh_token"), str) or not tokens["refresh_token"] or not isinstance(tokens.get("access_token"), str) or not 60 < lifetime < 366 * 86400:
-        raise SourceError("Google didn't give lasting access. Sign in again and allow Drive and Calendar access.")
+        raise SourceError("Google did not give lasting access. Sign in again and allow Drive and Calendar access.")
     return credential.model_copy(update={"access_token": tokens["access_token"], "refresh_token": tokens["refresh_token"], "expires_at": time.time() + lifetime})
 
 
@@ -190,12 +190,12 @@ def google_read_error(response: httpx.Response, service: str, scope: str) -> Non
     groups = [error.get(group) for group in ("errors", "details") if isinstance(error.get(group), list)]
     reasons = {entry.get("reason") for group in groups for entry in group if isinstance(entry, dict) and isinstance(entry.get("reason"), str)}
     if response.status_code == 429 or reasons & {"rateLimitExceeded", "userRateLimitExceeded", "dailyLimitExceeded", "quotaExceeded", "RATE_LIMIT_EXCEEDED"}:
-        raise SourceError(f"{service} quota reached; retry later. Your credentials are unchanged.")
+        raise SourceError(f"{service} quota reached. Try again later. Your sign-in is unchanged.")
     if reasons & {"insufficientPermissions", "ACCESS_TOKEN_SCOPE_INSUFFICIENT"}:
         raise SourceError(f"Google needs more access for {service}. Sign in again and allow it.")
     if response.status_code == 403:
-        raise SourceError(f"{service} read returned HTTP 403; check account access and whether the {service} API is enabled")
-    raise SourceError(f"{service} read returned HTTP {response.status_code}; retry when access returns")
+        raise SourceError(f"{service} returned HTTP 403. Check your account access and that the {service} API is enabled.")
+    raise SourceError(f"{service} returned HTTP {response.status_code}. Try again later.")
 
 
 async def check_google(store: Store) -> str:
@@ -228,9 +228,9 @@ async def connect_google(store: Store) -> str:
     """
     client = find_client(store)
     if client is None:
-        raise SourceError("Couldn't find your Google OAuth client file. Add its path in Settings, or put it in your Downloads folder.")
+        raise SourceError("Could not find your Google OAuth client file. Add its path in Settings or put it in your Downloads folder.")
     if not client.desktop:
-        raise SourceError("That's a web OAuth client. Create a Desktop one in Google Cloud instead.")
+        raise SourceError("That is a web OAuth client. Create a Desktop client in Google Cloud.")
     credential = await sign_in(Credential(client_id=client.client_id, client_secret=client.client_secret))
     await token_manager().enroll("google", credential)
     return await check_google(store)

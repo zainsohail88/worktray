@@ -111,3 +111,11 @@ def test_suggestion_for_an_item_closed_by_hand_is_hidden(store):
     store.edit("slack:c", ItemEdit(status="dismissed"))
 
     assert visible_suggestions(store) == []
+
+
+def test_tidy_up_prompt_leaves_out_notes():
+    from worktray.sources.cleanup import _prompt
+
+    prompt = _prompt([Item(key="manual:a", title="Plan the release", source="manual", status="open", note="My private note")], {})
+
+    assert "My private note" not in prompt and '<data name="stream_items">' in prompt

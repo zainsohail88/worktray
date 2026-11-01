@@ -145,9 +145,9 @@ async def read_upstream(store: Store) -> Batch:
             store.suggest_close(key, states[found[0]].text if len(found) == 1 else f"All {len(found)} linked tickets and PRs are done")
             suggested += 1
     finished = sum(state.finished for state in states.values())
-    skipped = f". Skipped {_count(len(tickets), 'ticket')} because Jira isn't set up" if tickets and not ready else ""
+    skipped = f". Skipped {_count(len(tickets), 'ticket')} because Jira is not set up" if tickets and not ready else ""
     skipped += "".join(f". Skipped {_count(len(found), f'{name} link')} because {name} is off" for name, found in (("GitHub", github), ("Bitbucket", bitbucket)) if found and name.lower() not in on)
-    skipped += "".join(f". Couldn't check {_count(len(errors), f'{name} link')}: {errors[0]}" for name, errors in failures.items())
+    skipped += "".join(f". Could not check {_count(len(errors), f'{name} link')}: {errors[0]}" for name, errors in failures.items())
     return Batch(detail=f"Checked {len(references)} linked tickets and pull requests: {finished} done, {_count(suggested, 'ask')} ready to close{skipped}")
 
 

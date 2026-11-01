@@ -138,10 +138,10 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
             raise HTTPException(400, f"{source.label} has no setting named {', '.join(sorted(unknown))}")
         terminal_only = [key for key in body.settings if not settings[key].web]
         if terminal_only:
-            raise HTTPException(403, f"For safety this is set from the terminal only: worktray config set {terminal_only[0]} '…'")
+            raise HTTPException(403, f"This can only be set from the terminal: worktray config set {terminal_only[0]} VALUE")
         locked = [field.env for key in [*body.settings, *body.secrets, *body.clear] for field in [settings.get(key) or secrets[key]] if field.locked()]
         if locked:
-            raise HTTPException(409, f"Set by an environment variable, so it can't be changed here: {', '.join(locked)}")
+            raise HTTPException(409, f"Set by an environment variable, so it cannot be changed here: {', '.join(locked)}")
         cleaned = {}
         for key, value in body.settings.items():
             try:

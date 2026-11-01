@@ -110,7 +110,7 @@ class Setting:
             try:
                 return self.clean(exported)
             except ValueError as error:
-                raise SourceError(f"{self.env} isn't valid: {error}") from error
+                raise SourceError(f"{self.env} is not valid: {error}") from error
         return (store.setting(self.key) or self.default).strip()
 
     def saved(self, store: Store) -> str:
@@ -189,7 +189,7 @@ def enabled_locked(source: str) -> bool:
 
 def set_source_enabled(store: Store, source: str, on: bool) -> None:
     if enabled_locked(source):
-        raise PermissionError(f"An environment variable decides whether {source} is on; change {SOURCES_ENV} or {env_name(enabled_key(source))}")
+        raise PermissionError(f"An environment variable decides whether {source} is on. Change {SOURCES_ENV} or {env_name(enabled_key(source))}")
     store.save_setting(enabled_key(source), "on" if on else "off")
 
 

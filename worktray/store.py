@@ -243,7 +243,7 @@ class Store:
                 raise KeyError(key)
             item = Item.model_validate_json(row[0])
             if edit.status and item.status in ("done", "dismissed") and edit.status != item.status:
-                raise ValueError("Closed items stay closed; create a new item for new work")
+                raise ValueError("Closed items stay closed. Create a new item for new work.")
             if item.status == "proposed" and edit.status:
                 decision = "dismissed" if edit.status == "dismissed" else "accepted"
                 connection.execute("INSERT OR IGNORE INTO decisions VALUES (?, ?, ?, ?)", (key, item.source, decision, now()))

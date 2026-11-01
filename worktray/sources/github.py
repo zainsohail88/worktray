@@ -96,7 +96,7 @@ async def _search(search: str) -> list[dict]:
 async def check_github(store: Store) -> str:
     """The gh CLI holds the login; this only confirms it works."""
     if not await cli_logged_in("gh"):
-        raise SourceError("You're not signed in to gh. Run gh auth login in a terminal.")
+        raise SourceError("You are not signed in to gh. Run gh auth login in a terminal.")
     identity = await cli_json(["gh", "api", "user"])
     return f"Connected to GitHub as {identity['login']}"
 
@@ -182,4 +182,4 @@ async def read_github_team(store: Store) -> Batch:
                     reason=", ".join(github_reasons(pr, own=True, requested=False)) or "Open team PR",
                 )
             )
-    return Batch(items=items, detail=f"{len(members)} people in {team}; open pull requests from the last 90 days, in {_where(organisations)}")
+    return Batch(items=items, detail=f"{len(members)} people in {team}. Open pull requests from the last 90 days, in {_where(organisations)}")
