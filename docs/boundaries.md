@@ -27,7 +27,7 @@ Every write route needs `Origin` equal to `{scheme}://{Host}`, or it returns 403
 
 ## MCP tools
 
-`tracker_list`, `tracker_queue`, `tracker_snooze`, `standup_note`, `meeting_brief`, `tracker_started`, `tracker_finished`, `tracker_add` and `tracker_propose` (`worktray/mcp_server.py`). The queue leaves out live items from sources that are off and keeps stored items, the same as the dashboard.
+`tracker_list`, `tracker_queue`, `tracker_snooze`, `standup_note`, `meeting_brief`, `tracker_started`, `tracker_finished`, `tracker_add` and `tracker_propose` (`worktray/mcp_server.py`). The queue leaves out live items from sources that are off and keeps stored items, the same as the dashboard. `tracker_finished` closes only items an agent started with `tracker_started`. For any other item it sets a close suggestion that the user confirms in the dashboard. Tool results leave out `owner_email` and `owner_id`.
 
 ## Command line
 

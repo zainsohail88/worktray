@@ -19,7 +19,7 @@ The service file holds only the port, the data folder and `PATH`. Save tokens in
 
 ## Coding agents
 
-worktray can run as an MCP server, so a coding agent such as Claude Code can read and update your worktray items. The agent can list your items, add, snooze and propose items, write a standup note, brief a meeting and mark its own tasks as started or finished.
+worktray can run as an MCP server, so a coding agent such as Claude Code can read and update your worktray items. The agent can list your items, add, snooze and propose items, write a standup note, brief a meeting and mark its own tasks as started or finished. An agent cannot close your other items. It can only suggest closing them, and you confirm in worktray.
 
 1. Install the MCP extra:
 

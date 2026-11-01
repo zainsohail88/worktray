@@ -71,3 +71,32 @@ def test_queue_leaves_out_work_from_a_switched_off_source(store):
     set_source_enabled(store, "jira", False)
 
     assert call(store, "tracker_queue").items == []
+
+
+def test_agent_closes_work_it_started(store):
+    started = call(store, "tracker_started", {"title": "Fix the login page", "session_id": "s1", "agent": "claude"})
+
+    finished = call(store, "tracker_finished", {"key": started["key"], "result": "Tests pass"})
+
+    assert finished["status"] == "done" and finished["outcome"] == "closed"
+
+
+def test_agent_only_suggests_closing_work_it_did_not_start(store):
+    store.ingest([Item(key="slack:a", title="Review the rollout plan", source="slack", status="open")])
+
+    finished = call(store, "tracker_finished", {"key": "slack:a", "result": "Reviewed and approved"})
+
+    [item] = store.items()
+    assert finished["outcome"].startswith("close suggested")
+    assert (item.status, item.close_suggested, item.close_hint) == ("open", True, "Reviewed and approved")
+
+
+def test_agents_do_not_receive_other_peoples_emails_or_ids(store):
+    store.ingest([Item(key="slack:a", title="Ask", source="slack", status="open", owner_email="sam@example.com", owner_id="u-1")])
+    save_jira(store, Item(key="jira:WEB-1", title="Retry", source="jira", status="open", live=True, owner_email="sam@example.com", owner_id="u-1"))
+
+    listed = call(store, "tracker_list")
+    queued = call(store, "tracker_queue").items
+
+    assert all("owner_email" not in item and "owner_id" not in item for item in listed)
+    assert not hasattr(queued[0], "owner_email") and not hasattr(queued[0], "owner_id")

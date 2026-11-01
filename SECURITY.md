@@ -40,5 +40,6 @@ Out of scope:
 - URL settings must use `https://`, or `http://` to `localhost`, `127.0.0.1` or `::1`. worktray parses the host and refuses URLs with a user name or password. Environment variables are checked the same way.
 - Every source only reads. worktray reads message and document text in memory and keeps only titles and links.
 - Responses carry a strict Content-Security-Policy with no inline scripts, `X-Frame-Options: DENY` and `Cache-Control: no-store`.
-- The Slack and Tidy-up suggestions sources run the Codex CLI in a read-only sandbox and check its output against a schema.
+- The Slack and Tidy-up suggestions sources run the Codex CLI in a read-only sandbox. Source text goes into the prompt marked as data, not instructions, and the output is checked against a schema.
+- Coding agents connected over MCP can close only the items they started. For other items they can only suggest closing, and you confirm. They do not receive other people's email addresses or account IDs.
 - CI pins every action to a commit SHA, scans the code and the workflows with CodeQL and audits the dependencies on every pull request.
