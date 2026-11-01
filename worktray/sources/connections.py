@@ -30,7 +30,7 @@ async def cli_json(command: list[str], payload: str | None = None) -> Any:
     if process.returncode:
         codes = re.findall(rb"\b(?:401|403|404|429|5[0-9]{2})\b", stderr)
         status = f" (HTTP {codes[0].decode()})" if codes else ""
-        raise SourceError(f"{command[0]} couldn't read from the server{status}. Check that it's signed in and you're online.")
+        raise SourceError(f"{command[0]} could not read from the server{status}. Check that it is signed in and you are online.")
     result = json.loads(stdout)
     if isinstance(result, dict) and result.get("errors"):
         raise SourceError(f"{command[0]} returned an incomplete result. Try again.")
@@ -54,7 +54,7 @@ async def get_json(client: httpx.AsyncClient, url: str, **kwargs: Any) -> dict:
         retry_after = response.headers.get("Retry-After", "5")
         delay = float(retry_after) if retry_after.isdigit() else 5
         if delay > 60:
-            raise SourceError("The service is rate limiting worktray. It'll try again on the next sync.")
+            raise SourceError("The service is rate limiting worktray. It will try again on the next sync.")
         await asyncio.sleep(delay)
     if response.status_code >= 400:
         raise SourceError(f"The server answered with HTTP {response.status_code}. Check your sign-in and that you have access.")

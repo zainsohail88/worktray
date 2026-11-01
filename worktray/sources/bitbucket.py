@@ -14,7 +14,7 @@ from worktray.store import Store
 BITBUCKET_WORKSPACE = Setting("bitbucket_workspace", "Bitbucket workspace", help="Every repository in it is checked. Leave blank to skip Bitbucket.", placeholder="acme", validate=single_name)
 # bkt's --context picks one of its saved logins by the name given at bkt auth login, not a workspace.
 BITBUCKET_CONTEXT = Setting(
-    "bitbucket_context", "bkt context", help="Optional. The bkt login to use, if you have more than one; see bkt context list. Leave blank for bkt's default.", validate=single_name
+    "bitbucket_context", "bkt context", help="Optional. The bkt login to use when you have more than one. Run bkt context list to see them. Leave blank for the bkt default.", validate=single_name
 )
 FIELDS = (BITBUCKET_WORKSPACE, BITBUCKET_CONTEXT)
 
@@ -102,7 +102,7 @@ async def check_bitbucket(store: Store) -> str:
     workspace = _workspace(store)
     context = BITBUCKET_CONTEXT.read(store)
     if not await cli_logged_in("bkt"):
-        raise SourceError("You're not signed in to bkt. Run bkt auth login in a terminal.")
+        raise SourceError("You are not signed in to bkt. Run bkt auth login in a terminal.")
     identity = await _get("/user", context)
     return f"Connected to Bitbucket as {identity.get('display_name') or identity.get('username') or 'you'}, workspace {workspace}"
 

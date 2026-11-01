@@ -41,7 +41,7 @@ def test_finished_work_checks_pull_requests_when_the_keyring_is_unavailable(stor
 
     batch = asyncio.run(upstream.read_upstream(store))
 
-    assert "Skipped 1 ticket because Jira isn't set up" in batch.detail
+    assert "Skipped 1 ticket because Jira is not set up" in batch.detail
     assert store.items()[0].linked_status == "example-org/app#12 merged"
 
 

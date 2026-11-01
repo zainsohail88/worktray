@@ -133,7 +133,7 @@ def test_switched_off_source_is_not_scheduled_or_started(store):
     set_source_enabled(store, "slack", False)
 
     assert engine.due() == ["github"]
-    with pytest.raises(ValueError, match="turned off"):
+    with pytest.raises(ValueError, match="source is off"):
         engine.start(["slack"])
 
 

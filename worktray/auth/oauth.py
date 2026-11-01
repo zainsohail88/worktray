@@ -49,7 +49,7 @@ class KeyringSecrets:
         try:
             return Credential.model_validate_json(value) if value else None
         except ValidationError as error:
-            raise SourceError("Saved credentials are invalid; reconnect the account") from error
+            raise SourceError("The saved sign-in is invalid. Sign in again.") from error
 
     def save(self, profile: Profile, credential: Credential) -> None:
         secret_store().write(f"oauth:{profile}", credential.model_dump_json())
@@ -91,7 +91,7 @@ class TokenManager:
                     break
                 except BlockingIOError:
                     if time.monotonic() >= deadline:
-                        raise SourceError("Another process is renewing credentials; retry shortly") from None
+                        raise SourceError("Another worktray process is renewing the sign-in. Try again shortly.") from None
                     await asyncio.sleep(0.05)
             yield
         finally:
@@ -124,7 +124,7 @@ class TokenManager:
             token = os.environ.get(ENV_TOKENS[profile], "")
             if token and not rejected:
                 return token
-            raise SourceError(f"{profile}: connect the account for renewable credentials; {ENV_TOKENS[profile]} supports temporary access only")
+            raise SourceError(f"{profile}: sign in for lasting access. {ENV_TOKENS[profile]} only gives temporary access.")
         cached = self.cached.get(profile)
         if profile not in self.pending and self._usable(cached, rejected):
             return cached.access_token
@@ -150,7 +150,7 @@ class TokenManager:
                     credential = rotated
                 self.pending.pop(profile)
             if credential is None:
-                raise SourceError(f"{profile}: keyring entry is missing; reconnect the account")
+                raise SourceError(f"{profile}: the keyring entry is missing. Sign in again.")
             if not self._usable(credential, rejected):
                 original = credential
                 credential = await self._renew(profile, original)
@@ -173,18 +173,18 @@ class TokenManager:
             async with httpx.AsyncClient(transport=self.transport, timeout=30) as client:
                 response = await client.post(endpoint, data=fields)
         except httpx.RequestError as error:
-            raise SourceError(f"{profile}: OAuth service is unreachable; retry when the connection recovers") from error
+            raise SourceError(f"{profile}: cannot reach the sign-in service. Try again when you are online.") from error
         try:
             data = response.json()
         except ValueError as error:
-            raise SourceError(f"{profile}: OAuth service returned an invalid response") from error
+            raise SourceError(f"{profile}: the sign-in service returned an invalid response") from error
         if not isinstance(data, dict):
-            raise SourceError(f"{profile}: OAuth service returned an invalid response")
+            raise SourceError(f"{profile}: the sign-in service returned an invalid response")
         if response.status_code != 200:
             code = data.get("error")
             known = {"invalid_grant", "invalid_client", "ratelimited"}
             reason = code if isinstance(code, str) and code in known else f"HTTP {response.status_code}"
-            raise SourceError(f"{profile}: token renewal failed ({reason}); verify the issuing client credentials or reconnect the account")
+            raise SourceError(f"{profile}: renewing the sign-in failed ({reason}). Check the OAuth client file or sign in again.")
         tokens = data
         refresh = tokens.get("refresh_token") or credential.refresh_token
         try:
@@ -192,7 +192,7 @@ class TokenManager:
         except (TypeError, ValueError):
             lifetime = 0
         if not tokens.get("access_token") or not refresh or not 60 < lifetime < 366 * 86400:
-            raise SourceError(f"{profile}: OAuth response omitted valid rotating credentials")
+            raise SourceError(f"{profile}: the sign-in service did not return a new token. Sign in again.")
         return credential.model_copy(update={"access_token": tokens["access_token"], "refresh_token": refresh, "expires_at": time.time() + lifetime})
 
 

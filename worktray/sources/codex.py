@@ -16,7 +16,7 @@ from worktray.store import Store
 # Codex default, whose model OpenAI can retire (gpt-5.5 was removed in October 2026).
 # The command decides which program runs, so only the terminal can change it (web=False).
 CODEX_COMMAND = Setting(
-    "codex_command", "Codex command", default="codex", help="Leave as codex unless it's installed somewhere else. Change it with worktray config set codex_command.", validate=command_line, web=False
+    "codex_command", "Codex command", default="codex", help="Leave as codex unless it is installed somewhere else. Change it with worktray config set codex_command.", validate=command_line, web=False
 )
 CODEX_MODEL = Setting("codex_model", "Codex model", default="gpt-6-luna", help="The model the Slack and tidy-up agents use.", validate=single_name)
 CODEX_PROFILE = Setting("codex_profile", "Codex profile", help="Optional. A profile from your Codex config.", validate=single_name)

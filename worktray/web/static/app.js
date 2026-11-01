@@ -59,9 +59,9 @@ function eventTime(item) {
     const lastDay = new Date(item.ends_at.slice(0,10) + "T12:00:00");
     lastDay.setDate(lastDay.getDate() - 1);
     const last = lastDay.toLocaleDateString(undefined, {month:"short",day:"numeric"});
-    return `${day(item.starts_at)}${day(item.starts_at) === last ? "" : ` – ${last}`} · All day`;
+    return `${day(item.starts_at)}${day(item.starts_at) === last ? "" : ` - ${last}`} · All day`;
   }
-  return `${start.toLocaleString(undefined, {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})} – ${end.toLocaleString(undefined, {month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"})}`;
+  return `${start.toLocaleString(undefined, {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})} - ${end.toLocaleString(undefined, {month:"short",day:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"})}`;
 }
 const WORK_PAGE = 50;
 const TRIAGE_PAGE = 25;
@@ -118,7 +118,7 @@ $("theme-toggle").onclick = () => {
 async function api(path, method = "GET", body) {
   const response = await fetch(path, {method, headers: body ? {"Content-Type":"application/json"} : {}, body: body ? JSON.stringify(body) : undefined});
   const data = await response.json();
-  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Something in the form isn't right. Check it and try again.");
+  if (!response.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Something in the form is not right. Check it and try again.");
   return data;
 }
 
@@ -204,7 +204,7 @@ function snoozeOptions() {
   const isTomorrow = Math.round((at(next, 0) - at(now, 0)) / 86400000) === 1;
   options.push([isTomorrow ? "Tomorrow" : next.toLocaleDateString(undefined, {weekday:"long"}), at(next, 9)]);
   const meeting = timedMeetings()[0];
-  if (meeting) options.push([`After ${meeting.title.length > 28 ? `${meeting.title.slice(0, 27)}…` : meeting.title}`, new Date(meeting.ends_at)]);
+  if (meeting) options.push([`After ${meeting.title.slice(0, 28)}`, new Date(meeting.ends_at)]);
   return options;
 }
 
@@ -248,7 +248,7 @@ function renderNextStrip() {
   const meeting = meetings[0];
   if (!meeting) { $("next-strip").innerHTML = onCallStrip() + '<span class="muted">No meetings in the next two weeks</span>'; return; }
   const startsToday = new Date(meeting.starts_at).toDateString() === new Date().toDateString();
-  const when = startsToday ? `${until(meeting.starts_at)} · ${clock(meeting.starts_at)}–${clock(meeting.ends_at)}` : eventTime(meeting);
+  const when = startsToday ? `${until(meeting.starts_at)} · ${clock(meeting.starts_at)} - ${clock(meeting.ends_at)}` : eventTime(meeting);
   const gap = focusGap(meetings);
   $("next-strip").innerHTML = onCallStrip() + `<div class="strip-row" data-key="${esc(meeting.key)}">${icon("meeting")}<span class="strip-label">Next</span><a href="${esc(meeting.url)}" target="_blank" rel="noopener noreferrer">${esc(meeting.title)}</a><span class="muted">${esc(when)}</span>${meeting.source_status ? `<span class="reason act">${esc(meeting.source_status)}</span>` : ""}${gap ? `<span class="gap">${esc(gap)}</span>` : ""}<button data-action="brief" aria-expanded="${briefOpen === meeting.key}">${icon("brief")}Brief</button></div>${briefOpen === meeting.key && briefs.has(meeting.key) ? briefHtml(briefs.get(meeting.key)) : ""}`;
 }
@@ -271,8 +271,8 @@ function renderOnCall() {
   const shift = state.on_call;
   const epic = state.oncall_epic;
   $("oncall-count").textContent = shift?.current ? (state.oncall || []).filter(item => item.attention.length).length || "" : "";
-  $("oncall-shift").textContent = !shift ? "You're not on call in the next three weeks."
-    : shift.current ? `You're on call until ${shiftEnd(shift)} (${shift.schedule}).`
+  $("oncall-shift").textContent = !shift ? "You are not on call in the next three weeks."
+    : shift.current ? `You are on call until ${shiftEnd(shift)} (${shift.schedule}).`
     : `Your next shift starts ${new Date(shift.starts_at).toLocaleString(undefined, {weekday:"short", day:"numeric", month:"short", hour:"numeric", minute:"2-digit"})} (${shift.schedule}).`;
   $("oncall-epic").innerHTML = epic ? `<a href="${esc(epic.url)}" target="_blank" rel="noopener noreferrer">${esc(epic.key)} ${esc(epic.title)}</a>` : "not found yet. Sync to look for it";
   const items = sortItems([...(state.oncall || [])], null);
@@ -420,7 +420,7 @@ async function acceptAllSuggestions() {
     catch (error) { failed += 1; }
   }
   await load();
-  if (failed) notice(`Couldn't apply ${failed} suggestion${failed === 1 ? "" : "s"}.`);
+  if (failed) notice(`Could not apply ${failed} suggestion${failed === 1 ? "" : "s"}.`);
 }
 
 function triageRow(item) {
@@ -493,7 +493,7 @@ function renderMine() {
   const work = sortItems(matching.filter(item => item.status === "open" && chipMatches(item)), workSort);
   const shownWork = workAll ? work : work.slice(0, WORK_PAGE);
   $("work").querySelector("thead").innerHTML = headerRow([["", ""], ["type", "Type"], ["title", "Title"], ["why", "Why"], ["where", "Where"], ["due", "Due"], ["age", "Age"], [null, ""]], workSort);
-  $("work").querySelector("tbody").innerHTML = shownWork.map(workRow).join("") || `<tr class="empty-row"><td colspan="8">${chip || $("search").value || $("type-filter").value ? "Nothing matches these filters." : !state.sources.length ? 'Nothing is switched on yet. Pick the sources you use in <button class="link" data-view="settings">Settings</button>, or add an item yourself.' : 'You\'re all caught up. Add something, or connect another source in <button class="link" data-view="settings">Settings</button>.'}</td></tr>`;
+  $("work").querySelector("tbody").innerHTML = shownWork.map(workRow).join("") || `<tr class="empty-row"><td colspan="8">${chip || $("search").value || $("type-filter").value ? "Nothing matches these filters." : !state.sources.length ? 'Nothing is switched on yet. Pick the sources you use in <button class="link" data-view="settings">Settings</button>, or add an item yourself.' : 'You are all caught up. Add an item or turn on another source in <button class="link" data-view="settings">Settings</button>.'}</td></tr>`;
   $("work-more").innerHTML = work.length > shownWork.length ? `<button class="more" data-more="work">Show all ${work.length}</button>` : "";
   const triage = sortItems(matching.filter(item => item.status === "proposed" && !snoozed(item)), triageSort);
   const shownTriage = triageAll ? triage : triage.slice(0, TRIAGE_PAGE);
@@ -624,7 +624,7 @@ function render() {
   $("mine-count").textContent = awakeOpen().filter(item => item.lane !== "waiting").length || "";
   $("connection-count").textContent = unhealthy.length || "";
   const latest = state.sources.map(source => source.last_success).filter(Boolean).sort().at(-1);
-  $("refresh-label").textContent = state.refreshing ? "Syncing…" : "Sync";
+  $("refresh-label").textContent = state.refreshing ? "Syncing" : "Sync";
   $("refresh").classList.toggle("syncing", state.refreshing);
   $("refresh").disabled = state.refreshing;
   $("refresh").title = (latest ? `Synced ${ago(latest)} · ` : "") + (state.auto_refresh === false ? "Background sync is off · " : "") + "Sync all your sources now";
@@ -636,7 +636,7 @@ function render() {
   $("type-filter").value = selectedType;
   renderMine(); renderTeam(); renderOnCall(); renderHistory(); renderSnapshotNotice(); renderSettings();
   $("sources").innerHTML = (state.sources.length ? "" : '<p class="muted">No sources are on yet. Pick the ones you use in <button class="link" data-view="settings">Settings</button>.</p>') + state.sources.map(source => `<div class="source-row"><strong>${esc(label(source.source))}</strong><span class="badge ${esc(source.state)}">${esc(source.state.replaceAll("_"," "))}</span><div class="source-detail">${esc(source.detail)}<time>${source.last_success ? `Last synced ${esc(date(source.last_success))}` : "Not synced yet"}${source.stale_since && source.last_success ? ` · Out of date since ${esc(date(source.stale_since))}` : ""}${state.refresh_intervals?.[source.source] ? ` · Every ${intervalLabel(state.refresh_intervals[source.source])}` : " · Only when you sync"}</time></div><button data-refresh="${esc(source.source)}" ${source.state === "refreshing" ? "disabled" : ""}>Sync now</button></div>`).join("");
-  $("metrics").innerHTML = Object.entries(state.metrics).map(([source,counts]) => `<div class="metrics-row"><strong>${esc(label(source))}</strong><span>${counts.accepted} accepted</span><span>${counts.dismissed} dismissed</span><span>${Math.round(counts.accepted/(counts.accepted+counts.dismissed)*100)}% accepted</span></div>`).join("") || '<p class="muted">Accept or dismiss a few suggestions and you\'ll see how useful each source is.</p>';
+  $("metrics").innerHTML = Object.entries(state.metrics).map(([source,counts]) => `<div class="metrics-row"><strong>${esc(label(source))}</strong><span>${counts.accepted} accepted</span><span>${counts.dismissed} dismissed</span><span>${Math.round(counts.accepted/(counts.accepted+counts.dismissed)*100)}% accepted</span></div>`).join("") || '<p class="muted">Accept or dismiss a few suggestions and you will see how useful each source is.</p>';
 }
 
 function openEditor(item = null) {
@@ -666,7 +666,7 @@ async function bulkTriage(status) {
     failed += results.filter(result => result.status === "rejected").length;
   }
   await load();
-  if (failed) notice(`Couldn't update ${failed} of ${shown.length}.`);
+  if (failed) notice(`Could not update ${failed} of ${shown.length}.`);
 }
 
 document.addEventListener("click", async event => {

@@ -206,7 +206,7 @@ class Engine:
         requested = self._scope_values().get(source, {})
         state.state = "refreshing"
         state.last_attempt = now()
-        state.detail = spec.busy if spec else "Syncing…"
+        state.detail = spec.busy if spec else "Syncing"
         result = await self._read(source)
         if self._changed_during(requested, source):
             result = SourceError("Its settings changed during the sync. Sync again.")

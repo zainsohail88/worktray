@@ -25,7 +25,7 @@ MEETING_FOLDER = Setting(
     "meeting_folder",
     "Meeting notes folder",
     help="The Google Drive folder, or its link. Subfolders are included too.",
-    placeholder="https://drive.google.com/drive/folders/…",
+    placeholder="https://drive.google.com/drive/folders/FOLDER_ID",
     validate=lambda value: _folder(value),
 )
 MEETING_ALIASES = Setting(
@@ -145,7 +145,7 @@ async def read_gemini(store: Store) -> Batch:
     store.save_setting(MEETING_BACKFILLED_SETTING, store.setting(MEETING_BACKFILLED_SETTING) or now())
     failed = len(documents) - len(read)
     detail = f"Read {len(read)} meeting notes from the last {days} days and found {len(items)} action items for you"
-    return Batch(items=items, detail=f"{detail}. {failed} couldn't be read" if failed else detail)
+    return Batch(items=items, detail=f"{detail}. {failed} could not be read" if failed else detail)
 
 
 async def read_confluence(store: Store) -> Batch:
@@ -157,11 +157,11 @@ async def read_confluence(store: Store) -> Batch:
     async with httpx.AsyncClient(auth=(config["CONFLUENCE_USERNAME"], config["CONFLUENCE_API_TOKEN"]), timeout=30) as client:
         identity = await client.get(f"{base}/rest/api/user/current")
         if identity.status_code != 200:
-            raise SourceError(f"Confluence didn't accept the sign-in (HTTP {identity.status_code}).")
+            raise SourceError(f"Confluence did not accept the sign-in (HTTP {identity.status_code}).")
         # Confluence names you itself, so this works without syncing Jira first.
         account_id = identity.json().get("accountId", "") or store.setting("jira_account_id")
         if not re.fullmatch(r"[\w:-]+", account_id or ""):
-            raise SourceError("Confluence didn't say which account you are. Check the email in the Jira settings.")
+            raise SourceError("Confluence did not say which account you are. Check the email in the Jira settings.")
         query = f'mention = "{account_id}" AND lastmodified >= now("-100d")'
         start = 0
         items = []

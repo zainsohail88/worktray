@@ -96,7 +96,7 @@ BUILTIN: tuple[Source, ...] = (
         STEADY,
         group="jira",
         empty_is_valid=True,
-        description="Your team's on-call epic, and your shift from Jira Service Management.",
+        description="Your team's on-call epic and your shift from Jira Service Management.",
         settings=oncall.FIELDS,
         uses="jira",
     ),
@@ -108,7 +108,7 @@ BUILTIN: tuple[Source, ...] = (
         QUICK,
         group="pr",
         empty_is_valid=True,
-        description="Pull requests waiting for your review, and your own. Uses your gh login.",
+        description="Pull requests waiting for your review and your own pull requests. Uses your gh login.",
         settings=github.FIELDS,
         check=github.check_github,
     ),
@@ -182,7 +182,7 @@ BUILTIN: tuple[Source, ...] = (
         extras=("mcp",),
         available=public_slack.mcp_available,
     ),
-    Source("upstream", "Finished work", lambda store, home: read_upstream(store), QUICK, description="Notices when the ticket or pull request behind an ask is done, and offers to close the ask."),
+    Source("upstream", "Finished work", lambda store, home: read_upstream(store), QUICK, description="Offers to close an ask when the ticket or pull request it mentions is done."),
     Source("cleanup", "Tidy-up suggestions", lambda store, home: read_cleanup(store), SLOW, description="A Codex agent suggests merges, clearer titles, due dates and things to close.", uses="slack"),
     Source(
         "teamcity",
@@ -246,7 +246,7 @@ def _keys(source: Source) -> list[str]:
 def _problem(source: Source, found: dict[str, Source], taken: set[str]) -> str:
     keys = _keys(source)
     if not SOURCE_NAME.fullmatch(source.name):
-        return f"its name {source.name!r} isn't lower-case letters, digits and underscores"
+        return f"its name {source.name!r} is not lower-case letters, digits and underscores"
     if source.name in found or source.name == "manual":
         return f"the name {source.name!r} is taken"
     clash = sorted((taken | RESERVED_KEYS) & set(keys) | {key for key in keys if key.startswith("source_")})
@@ -272,7 +272,7 @@ def discover(plugins: Iterable[EntryPoint] | None = None) -> dict[str, Source]:
     # A source that borrows another's sign-in needs that one to exist; plugins may name each other in any order.
     while missing := [name for name, source in found.items() if source.uses and source.uses not in found]:
         for name in missing:
-            logger.error("Source %s skipped: it signs in through %s, which isn't installed", name, found[name].uses)
+            logger.error("Source %s skipped: it signs in through %s, which is not installed", name, found[name].uses)
             del found[name]
     return found
 

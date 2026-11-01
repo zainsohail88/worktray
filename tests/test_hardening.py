@@ -193,7 +193,7 @@ def test_finished_work_keeps_checking_when_one_pull_request_cannot_be_read(store
 
     batch = asyncio.run(upstream.read_upstream(store))
 
-    assert "Couldn't check 1 GitHub link" in batch.detail
+    assert "Could not check 1 GitHub link" in batch.detail
     assert {item.key: item.close_suggested for item in store.items()} == {"slack:a": False, "slack:b": True}
 
 

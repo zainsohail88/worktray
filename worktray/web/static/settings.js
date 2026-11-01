@@ -78,9 +78,9 @@ async function runAction(name, action, waiting) {
 
 // The server cannot assume it has a screen, so it hands the sign-in link back and the page offers it.
 async function connect(name) {
-  showResult(name, {ok: true, detail: "Getting the sign-in page ready…"});
+  showResult(name, {ok: true, detail: "Getting the sign-in page ready"});
   let done = false;
-  const running = runAction(name, "connect", "Getting the sign-in page ready…").finally(() => { done = true; });
+  const running = runAction(name, "connect", "Getting the sign-in page ready").finally(() => { done = true; });
   while (!done) {
     await new Promise(resolve => setTimeout(resolve, 800));
     if (done) break;
@@ -127,7 +127,7 @@ document.addEventListener("submit", async event => {
     await api(`/api/config/${encodeURIComponent(name)}`, "POST", {settings, secrets});
     await loadConfig();
     const source = config.sources.find(found => found.name === name);
-    if (source?.can_check && source.enabled) await runAction(name, "check", "Saved. Checking…");
+    if (source?.can_check && source.enabled) await runAction(name, "check", "Saved. Checking");
     else showResult(name, {ok: true, detail: "Saved."});
   } catch (error) { showResult(name, {ok: false, detail: error.message}); }
   finally { if (button) button.disabled = false; }
@@ -138,9 +138,9 @@ document.addEventListener("click", async event => {
   if (!button) return;
   button.disabled = true;
   try {
-    if (button.dataset.check) await runAction(button.dataset.check, "check", "Checking…");
+    if (button.dataset.check) await runAction(button.dataset.check, "check", "Checking");
     else if (button.dataset.connect) await connect(button.dataset.connect);
-    else if (button.dataset.disconnect) await runAction(button.dataset.disconnect, "disconnect", "Signing out…");
+    else if (button.dataset.disconnect) await runAction(button.dataset.disconnect, "disconnect", "Signing out");
     else if (confirm("Remove this saved token?")) {
       await api(`/api/config/${encodeURIComponent(button.dataset.source)}`, "POST", {clear: [button.dataset.clearSecret]});
       await loadConfig();
