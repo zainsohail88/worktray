@@ -1,0 +1,32 @@
+# Dependabot opens two kinds of PRs:
+# - Version updates (weekly): minor and patch bumps are grouped into one PR per ecosystem;
+#   major versions get their own PR so breaking changes are reviewed alone.
+# - Security updates (as soon as an alert has a fix): all fixes for an ecosystem are grouped
+#   into one PR. This replaces the "Grouped security updates" toggle in Settings, which
+#   GitHub disables when this file exists.
+version: 2
+updates:
+  - package-ecosystem: uv
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      python-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      python-security:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  # Workflows pin actions to commit SHAs; Dependabot updates the SHA and the version comment together.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+      actions-security:
+        applies-to: security-updates
+        patterns: ["*"]

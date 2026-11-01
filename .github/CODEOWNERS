@@ -1,0 +1,10 @@
+# Code owners are automatically requested for review on PRs touching their paths.
+# With "Require review from Code Owners" turned on in the main ruleset, these paths
+# can't merge without the owner's approval (or the owner's admin bypass).
+#
+# .github/ holds the workflows, Dependabot config and this file, so it controls what
+# runs in CI and what is published to PyPI. The license and security policy decide
+# how the project may be used and how problems are reported. Only the owner may change them.
+/.github/ @zainsohail88
+/LICENSE @zainsohail88
+/SECURITY.md @zainsohail88

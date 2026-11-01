@@ -1,0 +1,112 @@
+name: CI
+
+# Every pull request into main must pass these before it can merge (see CONTRIBUTING.md).
+# Actions are pinned to commit SHAs so a moved tag can't change what runs; Dependabot bumps them.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Cancel superseded PR runs, but let every main run finish so its result is recorded.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv sync --locked --only-group dev
+      - name: ruff check
+        run: uv run --no-sync ruff check worktray tests
+      - name: ruff format
+        run: uv run --no-sync ruff format --check worktray tests
+      - name: JavaScript syntax
+        run: for file in worktray/web/static/*.js; do node --check "$file"; done
+
+  test:
+    name: Tests (${{ matrix.os }}, Python ${{ matrix.python }}, ${{ matrix.extras }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.12", "3.13"]
+        extras: [all-extras]
+        include:
+          # Coverage is measured once, on the fullest install; the floor is in pyproject.toml.
+          - os: ubuntu-latest
+            python: "3.13"
+            extras: all-extras
+            coverage: true
+          # The core install, without optional extras, must work on its own.
+          - os: ubuntu-latest
+            python: "3.12"
+            extras: core
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked ${{ matrix.extras == 'all-extras' && '--all-extras' || '' }}
+      - name: pytest
+        run: uv run --no-sync pytest ${{ matrix.coverage && '--cov --cov-report=term-missing:skip-covered' || '' }}
+
+  package:
+    name: Build and smoke-test the package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv build
+      - name: Wheel contains the web assets and license
+        run: |
+          python - <<'PY'
+          import pathlib, zipfile
+          wheel = next(pathlib.Path("dist").glob("*.whl"))
+          names = set(zipfile.ZipFile(wheel).namelist())
+          needed = {"worktray/web/static/index.html", "worktray/web/static/app.js", "worktray/web/static/settings.js", "worktray/web/static/style.css"}
+          missing = needed - names
+          assert not missing, missing
+          assert any(name.endswith("licenses/LICENSE") for name in names), "LICENSE missing from wheel"
+          print(f"{wheel.name}: {len(names)} files")
+          PY
+      - run: uvx twine check --strict dist/*
+      - name: Install the wheel in a clean environment and run it
+        run: |
+          uv venv /tmp/smoke
+          VIRTUAL_ENV=/tmp/smoke uv pip install dist/*.whl
+          export WORKTRAY_HOME=/tmp/smoke-home
+          /tmp/smoke/bin/worktray --version
+          /tmp/smoke/bin/worktray sources
+          /tmp/smoke/bin/worktray config
+          /tmp/smoke/bin/worktray serve --port 8799 &
+          for attempt in $(seq 1 30); do curl -sf http://127.0.0.1:8799/api/state > /dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:8799/ | grep -q "<title>worktray"
+          curl -sf http://127.0.0.1:8799/api/config | python -c "import json, sys; assert len(json.load(sys.stdin)['sources']) >= 17"
+          kill %1
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: uv export --locked --all-extras --no-dev --no-emit-project --format requirements-txt > requirements.txt
+      - run: uvx pip-audit --strict --requirement requirements.txt --disable-pip

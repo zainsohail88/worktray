@@ -1,0 +1,28 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+.DS_Store
+.cursor/
+.mcp.json
+.env
+.env.*
+!.env.example
+client_secret*.json
+*.pem
+*.key
+
+# Local data and editor history
+data/
+.agents/local/
+.history/
+
+# Test coverage output
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml

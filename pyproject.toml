@@ -1,0 +1,86 @@
+[project]
+name = "worktray"
+version = "0.1.0"
+description = "A local dashboard that gathers your work from Jira, GitHub, Bitbucket, Google Calendar, meeting notes, Slack and AI coding agents into one queue"
+readme = "README.md"
+license = "PolyForm-Noncommercial-1.0.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+keywords = ["dashboard", "jira", "github", "bitbucket", "slack", "calendar", "mcp", "productivity"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Office/Business",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "httpx>=0.28.1",
+    "keyring>=25.7.0",
+    "pydantic>=2.9",
+    "uvicorn[standard]>=0.30",
+]
+
+[project.optional-dependencies]
+# The MCP client and server: the agent MCP server and the public Slack source.
+mcp = ["fastmcp>=3.2,<4"]
+all = ["worktray[mcp]"]
+
+[project.scripts]
+worktray = "worktray.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/zainsohail88/worktray"
+Issues = "https://github.com/zainsohail88/worktray/issues"
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["worktray"]
+
+[tool.hatch.build.targets.sdist]
+include = ["worktray", "tests", "docs", "README.md", "LICENSE", "CHANGELOG.md"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6",
+    "ruff>=0.8",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["worktray"]
+
+[tool.coverage.report]
+# The floor CI enforces. Raise it as tests are added; never lower it.
+fail_under = 65
+
+[tool.ruff]
+line-length = 200
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "S", "BLE", "SIM"]
+ignore = [
+    "UP017",  # datetime.timezone.utc reads clearer than datetime.UTC beside timedelta
+    "S101",   # tests use assert
+    "E501",   # long lines are kept whole rather than wrapped mid-expression
+    "S603",   # subprocess calls take fixed argument lists, never a shell
+    "S607",   # gh, bkt, codex, launchctl and systemctl are found on PATH on purpose
+    "SIM105", # try/except/pass is clearer than contextlib.suppress in the few places it appears
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S105", "S106", "S108"]

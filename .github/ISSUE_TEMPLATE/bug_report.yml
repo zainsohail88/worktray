@@ -1,0 +1,46 @@
+name: Bug report
+description: Something in worktray crashes or doesn't work as documented
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Found a security problem? Please **don't** file it here. See [SECURITY.md](https://github.com/zainsohail88/worktray/blob/main/SECURITY.md).
+
+        Leave out tokens, internal URLs, ticket titles, names and anything else from your workplace.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what did you get instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Turn on the GitHub source\n2. Click Sync\n3. ..."
+  - type: input
+    id: source
+    attributes:
+      label: Which source is involved?
+      placeholder: jira, github, calendar, a plugin...
+  - type: textarea
+    id: detail
+    attributes:
+      label: Error or source health detail
+      description: The message shown, or the text for the source on the Connections tab, with anything private removed.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Output of `worktray --version`
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [macOS, Linux, Other]
+    validations:
+      required: true
