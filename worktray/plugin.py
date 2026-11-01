@@ -7,7 +7,7 @@ either, under the `worktray.sources` entry point group:
     linear = "worktray_linear:SOURCE"
 
 Import only from this module; everything else in worktray may change between minor versions.
-See docs/plugins.md for a worked example.
+See "Adding a source" in CONTRIBUTING.md for an example.
 """
 
 from worktray.auth.browser import open_sign_in

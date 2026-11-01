@@ -1,35 +1,35 @@
 name: Bug report
-description: Something in worktray crashes or doesn't work as documented
+description: worktray crashes or does not work as documented
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Found a security problem? Please **don't** file it here. See [SECURITY.md](https://github.com/zainsohail88/worktray/blob/main/SECURITY.md).
+        Report security problems privately, as described in [SECURITY.md](https://github.com/zainsohail88/worktray/blob/main/SECURITY.md), not here.
 
-        Leave out tokens, internal URLs, ticket titles, names and anything else from your workplace.
+        Leave out tokens, internal URLs, ticket titles, names and other workplace data.
   - type: textarea
     id: what-happened
     attributes:
       label: What happened?
-      description: What did you expect, and what did you get instead?
+      description: What you expected and what happened.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
       label: Steps to reproduce
-      placeholder: "1. Turn on the GitHub source\n2. Click Sync\n3. ..."
+      placeholder: "1. Turn on the GitHub source\n2. Click Sync"
   - type: input
     id: source
     attributes:
-      label: Which source is involved?
-      placeholder: jira, github, calendar, a plugin...
+      label: Source
+      placeholder: jira, github, calendar or a plugin name
   - type: textarea
     id: detail
     attributes:
-      label: Error or source health detail
-      description: The message shown, or the text for the source on the Connections tab, with anything private removed.
+      label: Error message
+      description: The error shown, or the text for the source on the Connections tab, with private details removed.
       render: shell
   - type: input
     id: version

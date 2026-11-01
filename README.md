@@ -10,9 +10,9 @@ worktray is a local dashboard that collects your work from different sources int
 
 - macOS or Linux
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- A system keyring: built into macOS; GNOME Keyring or KWallet on Linux
+- A system keyring. macOS has one built in. On Linux, use GNOME Keyring or KWallet.
 
-Some sources need their own command-line tool, such as `gh` for GitHub. See [Sources](docs/sources.md).
+Some sources need their own command line tool, such as `gh` for GitHub. See [Sources](docs/sources.md).
 
 ## Install and run
 
@@ -21,7 +21,7 @@ uv tool install git+https://github.com/zainsohail88/worktray
 worktray serve --open
 ```
 
-Configure the sources you need in **Settings**.
+Configure the sources you need in Settings.
 
 ## Run from source
 
@@ -35,10 +35,9 @@ uv run worktray serve --open
 
 | | |
 |---|---|
-| [Using worktray](docs/features.md) | What each tab does, and keyboard shortcuts |
+| [Using worktray](docs/features.md) | The tabs and keyboard shortcuts |
 | [Sources](docs/sources.md) | What each source reads and what it needs |
-| [Configuration](docs/configuration.md) | Settings, environment variables, and where data is kept |
-| [Commands](docs/commands.md) | The `worktray` command, the background service, and connecting coding agents |
-| [Design notes](docs/index.md) | How worktray is built |
-| [Contributing](CONTRIBUTING.md) | Local setup and the pull request process |
+| [Configuration](docs/configuration.md) | Settings, environment variables and where data is kept |
+| [Commands](docs/commands.md) | The command line, the background service and coding agents |
+| [Contributing](CONTRIBUTING.md) | Development setup, adding a source and the design notes |
 | [Security](SECURITY.md) | Reporting a vulnerability |

@@ -1,40 +1,40 @@
 # Commands
 
-```text
-worktray serve [--port N] [--open]   start the dashboard (the default command)
-worktray auth [SOURCE ...]           set up sources in the terminal; --check, --reconnect
-worktray sources [enable|disable N]  list sources, or turn one on or off
-worktray config [set|unset KEY [V]]  list settings, or save or clear one; leave out V to type a token hidden
-worktray mcp                         run the MCP server for coding agents
-worktray service install             run worktray in the background at login
-```
+| Command | What it does |
+|---|---|
+| `worktray serve [--port N] [--open]` | Starts the dashboard. This is the default command. |
+| `worktray auth [SOURCE ...]` | Sets up sources in the terminal. Add `--check` to only test them, or `--reconnect` to sign in again. |
+| `worktray sources` | Lists the sources. `worktray sources enable NAME` and `worktray sources disable NAME` turn one on or off. |
+| `worktray config` | Lists the settings. `worktray config set KEY VALUE` saves one and `worktray config unset KEY` clears it. For a token, leave out the value and type it when asked. |
+| `worktray mcp` | Runs the MCP server for coding agents |
+| `worktray service ACTION` | Manages the background service. Actions: `install`, `uninstall`, `restart`, `status`, `logs`, `print`. |
 
 ## Background service
 
 `worktray service install` starts worktray at login and restarts it if it crashes. It uses launchd on macOS and a systemd user service on Linux.
 
-Stop any `worktray serve` you started in a terminal first, because both use the same port.
+Stop any `worktray serve` you started in a terminal before you install it, as both use the same port.
 
-Other actions: `uninstall`, `restart`, `status`, `logs`, `print`.
-
-The service file contains only the port, the data folder and `PATH`. Save tokens in the Settings page, not as environment variables, when using the service.
+The service file holds only the port, the data folder and `PATH`. Save tokens in Settings rather than as environment variables when you use the service.
 
 ## Coding agents
 
-Coding agents can read and update your worktray items over MCP: list your items, add and snooze items, propose new ones, draft a standup, brief a meeting, and mark their own tasks as started or finished.
+worktray can run as an MCP server, so a coding agent such as Claude Code can read and update your worktray items. The agent can list your items, add, snooze and propose items, write a standup note, brief a meeting and mark its own tasks as started or finished.
 
-This needs the MCP extra:
+1. Install the MCP extra:
 
-```sh
-uv tool install 'worktray[mcp] @ git+https://github.com/zainsohail88/worktray'
-```
+   ```sh
+   uv tool install 'worktray[mcp] @ git+https://github.com/zainsohail88/worktray'
+   ```
 
-Then add worktray to your agent's MCP configuration:
+2. Add worktray to your coding agent's MCP settings:
 
-```json
-{
-  "mcpServers": {
-    "worktray": { "command": "worktray", "args": ["mcp"] }
-  }
-}
-```
+   ```json
+   {
+     "mcpServers": {
+       "worktray": { "command": "worktray", "args": ["mcp"] }
+     }
+   }
+   ```
+
+The agent starts `worktray mcp` when it needs it. You do not run it yourself.

@@ -1,65 +1,148 @@
 # Contributing to worktray
 
-Thanks for helping. This guide covers local setup, adding a source, and the PR process.
-
-## Local setup
+## Development setup
 
 You need [uv](https://docs.astral.sh/uv/getting-started/installation/) on macOS or Linux.
 
 ```sh
 git clone https://github.com/zainsohail88/worktray && cd worktray
-uv sync --all-extras                         # .venv with the app, the MCP extra and dev tools
-uv run pytest --cov                          # tests, with the coverage floor from pyproject.toml
-uv run ruff check worktray tests             # lint
-uv run ruff format worktray tests            # format; CI runs it with --check
+uv sync --all-extras
 ```
 
-Run the app against a scratch data folder so your real queue and keyring entries stay untouched:
+| Command | What it does |
+|---|---|
+| `uv run pytest --cov` | Runs the tests and fails below the coverage floor in `pyproject.toml` |
+| `uv run ruff check worktray tests` | Lint |
+| `uv run ruff format worktray tests` | Formats the code. CI runs it with `--check`. |
+| `WORKTRAY_HOME=/tmp/worktray-dev uv run worktray serve --port 8799 --open` | Runs the app with a separate data folder, so your own items and keyring entries are not touched |
+
+The design notes in [docs/index.md](docs/index.md) explain how worktray is built.
+
+## Rules
+
+- Use made-up names in code, tests, docs and screenshots, such as `acme`, `ABC-123`, `Alex Example` and `example.com`. No real hostnames, ticket keys, people or tokens.
+- Anything that differs between users is a `Setting` or a `Secret` declared on its source, never a value in code.
+- No route, log line or error message may contain a token.
+- Tests do not use the network, your keyring or your data folder. `tests/conftest.py` gives every test a temporary folder and an in-memory keyring. Use the `store` fixture, which has every source on, or `fresh_store`, which has every source off.
+- Add type hints to every function and a docstring to every public one. Comments explain why, not what.
+
+## Adding a source
+
+A source is a `read` function and a `Source` row that declares its label, settings, tokens, schedule and connection check. The engine, Settings, `worktray auth`, `worktray sources` and `worktray config` all read the row, so nothing else needs editing.
+
+You can add a source in two ways:
+
+- Built in: a module in `worktray/sources/` and a row in `BUILTIN` in `worktray/sources/registry.py`.
+- As a plugin: a separate Python package that exposes its `Source` rows through the `worktray.sources` entry point. A plugin imports only from `worktray.plugin`, as the rest of worktray can change between versions.
+
+### Plugin example
+
+`pyproject.toml`:
+
+```toml
+[project]
+name = "worktray-linear"
+version = "0.1.0"
+dependencies = ["worktray>=0.1", "httpx"]
+
+[project.entry-points."worktray.sources"]
+linear = "worktray_linear:SOURCE"
+```
+
+`worktray_linear/__init__.py`:
+
+```python
+import httpx
+
+from worktray.plugin import QUICK, Batch, Item, NotConnectedError, Secret, Setting, Source, SourceError, Store
+
+TEAM = Setting("linear_team", "Linear team key", placeholder="ENG")
+TOKEN = Secret("linear_api_key", "Linear API key", help="Settings, API, Personal API keys in Linear.")
+
+
+async def read(store: Store, home) -> Batch:
+    key = TOKEN.read()
+    if not key:
+        raise NotConnectedError("Not set up yet. Add a Linear API key in Settings.")
+    query = '{ viewer { assignedIssues(filter: {state: {type: {nin: ["completed", "canceled"]}}}) { nodes { identifier title url createdAt } } } }'
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post("https://api.linear.app/graphql", json={"query": query}, headers={"Authorization": key})
+    if response.status_code != 200:
+        raise SourceError(f"Linear returned HTTP {response.status_code}. Check the API key.")
+    issues = response.json()["data"]["viewer"]["assignedIssues"]["nodes"]
+    return Batch(
+        items=[
+            Item(key=f"linear:{issue['identifier']}", source="linear", title=issue["title"][:240], url=issue["url"],
+                 status="open", live=True, opened_at=issue["createdAt"], lane="needs_me")
+            for issue in issues
+        ],
+        detail=f"{len(issues)} open Linear issues assigned to you",
+    )
+
+
+async def check(store: Store) -> str:
+    await read(store, None)
+    return "Connected to Linear"
+
+
+SOURCE = Source(
+    "linear", "Linear", read, QUICK,
+    description="Open Linear issues assigned to you.",
+    group="jira", empty_is_valid=True,
+    settings=(TEAM,), secrets=(TOKEN,), check=check,
+)
+```
+
+Install it next to worktray and restart worktray:
 
 ```sh
-WORKTRAY_HOME=/tmp/worktray-dev uv run worktray serve --port 8799 --open
+uv tool install 'worktray @ git+https://github.com/zainsohail88/worktray' --with worktray-linear
 ```
 
-## Adding a new source
+Linear then shows in Settings, `worktray sources` and `worktray config`. Its variables are `WORKTRAY_LINEAR_TEAM` and `WORKTRAY_LINEAR_API_KEY`.
 
-Most new sources fit best as a separate plugin package, so they ship on their own schedule; [docs/plugins.md](docs/plugins.md) has a worked example and the full contract. A source most users of worktray would want can be built in.
+### What a source must do
 
-Example: adding a built-in Linear source.
+- `read(store, home)` is async and returns a `Batch`. `home` is the user's home folder, for sources that read local files. Run blocking work with `asyncio.to_thread`. worktray cancels a read after 900 seconds.
+- Raise instead of returning a partial result. Raise `NotConnectedError` when the source is not set up, `SignInRequired` when a browser sign-in would fix it and `SourceError` for anything else. The message shows in the app, so make it something the user can act on and keep tokens and response bodies out of it.
+- An empty `Batch` means there is nothing to do. It replaces the last saved result when `empty_is_valid=True` or when the source already has a saved result.
+- Items with `live=True, status="open"` belong to the source and are replaced on every successful sync. Items with `live=False` are proposals that the user accepts or dismisses. worktray keeps those decisions by `key`, so keys must not change between syncs.
+- Keys start with the source name and a colon, such as `linear:ENG-12`.
+- Links must use `https://`, or `http://` to `localhost`, `127.0.0.1` or `::1`.
+- Source names use lower-case letters, digits and underscores and start with a letter.
+- Setting keys must be unique across all sources. Start them with the source name. worktray keeps `home`, `port`, `sources`, every key that starts with `source_` and its own preferences such as `team_jql` and `display_name`.
+- `Setting.read(store)` and `Secret.read()` return the environment variable first, checked with the setting's `validate`, then the saved value. Validators for common shapes are in `worktray/config.py`: `web_url`, `name_list`, `single_name`, `team_slug`, `plain_text` and `command_line`.
+- Set `web=False` on a setting that decides which program runs. Settings then shows it but cannot change it.
+- `uses` names another source whose sign-in this one shares, instead of repeating its fields.
+- `group` sets the type label and colour: `meeting`, `pr`, `jira`, `slack`, `notes`, `confluence` or `agent`. Any other word shows as itself.
+- `check(store)` is optional. It makes the smallest read that proves the login works and returns a sentence such as "Connected to Linear".
+- `connect(store)` and `disconnect(store)` are optional and add a browser sign-in. Pass the sign-in link to `open_sign_in(url, label)`, which hands it to the Settings page.
+- `extras` and `available` declare an optional package the source needs. If `available()` returns false or raises, the source shows as not connected with the install command.
 
-1. **Settings.** Declare what the user must provide in `worktray/sources/linear.py`: a `Setting` for each preference and a `Secret` for each token, with a validator where the value has a shape (`web_url`, `name_list`, `single_name`). Nothing organisation-specific goes in code.
-2. **Reader.** Write `async def read_linear(store) -> Batch`. Raise `NotConnectedError` when it isn't set up, `SignInRequired` when a browser sign-in would fix it, and `SourceError` with a message the user can act on for anything else. Never return a partial result.
-3. **Check.** Add `check_linear(store)`, the smallest read that proves the login works, returning a sentence such as "Connected to Linear as Alex".
-4. **Registry.** Add one `Source` row in `worktray/sources/registry.py`. The Settings page, `worktray auth`, `worktray config` and the engine all read it, so nothing else needs editing.
-5. **Tests.** Add `tests/test_linear.py`, covering the happy path, not set up, a refused login and a server error, with `httpx.MockTransport` instead of the network. CI fails if coverage drops below the floor.
-6. **Docs.** Add a row to the table in `docs/sources.md` and each variable to the table in `docs/configuration.md`. `tests/test_docs.py` fails if either is missing.
+worktray skips a plugin and logs the reason when the plugin fails to import, its factory raises, it returns something other than `Source` rows or it breaks a naming rule above.
 
-## Code style
+### Built-in source checklist
 
-- **ruff** for linting and formatting (`uv run ruff format` fixes most things).
-- **Type hints** on all functions.
-- **Docstrings** on public functions. Say what it does, and give an example when the input is not obvious.
-- **Comments explain why**, not what. Plain words, no buzzwords.
+1. Write the reader in `worktray/sources/NAME.py`. A reader of local files can be a plain function, which the registry runs with `asyncio.to_thread`.
+2. Declare the settings and tokens as module-level `Setting` and `Secret` objects.
+3. Add the `Source` row to `BUILTIN` in `worktray/sources/registry.py`.
+4. Add `tests/test_NAME.py` covering a working read, not set up, a refused login and a server error. Use `httpx.MockTransport` instead of the network.
+5. Add a row to `docs/sources.md` and each new variable to `docs/configuration.md`. `tests/test_docs.py` fails if either is missing.
 
-## Ground rules
-
-- **No workplace data.** Code, tests, fixtures, docs and screenshots use neutral names such as `acme`, `ABC-123`, `Alex Example` and `example.com`. No real hostnames, ticket keys, people or tokens.
-- **Secrets never reach the browser.** No route, log line or error message may contain a token.
-- **Tests don't touch the network, your keyring or your data folder.** `tests/conftest.py` points every test at a temporary folder and an in-memory keyring; use the `store` fixture, which has every source switched on, or `fresh_store` for a first start.
-
-## Pull request process
+## Pull requests
 
 1. Branch from `main`.
-2. Keep each PR to one change: one source, one fix, and so on.
-3. Run the commands under [Local setup](#local-setup) before pushing.
-4. Open a PR into `main` and fill in the template. CI must pass: lint and format, tests on macOS and Linux with Python 3.12 and 3.13, the core install without extras, the package build, the dependency audit and CodeQL.
-5. A maintainer reviews and merges. Changes to `.github/`, `LICENSE` and `SECURITY.md` also need the owner's review (see `.github/CODEOWNERS`).
+2. Keep each pull request to one change.
+3. Run the tests, lint and format check before you push.
+4. Open the pull request against `main` and fill in the template. CI must pass: lint and format, tests on macOS and Linux with Python 3.12 and 3.13, the install without extras, the package build, the dependency audit and CodeQL.
+5. Changes to `.github/`, `LICENSE` and `SECURITY.md` also need the owner's review. See `.github/CODEOWNERS`.
 
 ## Releasing
 
 1. Update `version` in `pyproject.toml` and add a section to `CHANGELOG.md`.
 2. Merge to `main`, then push a tag `vX.Y.Z` that matches the version.
-3. The release workflow checks, tests and builds, publishes to PyPI with trusted publishing, and creates the GitHub release.
+3. The release workflow tests and builds the package, publishes it to PyPI and creates the GitHub release.
 
 ## License
 
-By contributing, you agree your contributions are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+By contributing, you agree that your contributions are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).

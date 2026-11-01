@@ -1,22 +1,22 @@
-name: Feature request or new source
-description: Suggest an improvement, or a source worktray should read
+name: Feature request
+description: Suggest a change or a new source
 labels: [enhancement]
 body:
   - type: textarea
     id: problem
     attributes:
       label: What problem would this solve?
-      description: Describe what you're trying to do today and what makes it hard.
+      description: What you are trying to do and what makes it hard today.
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: What would you like?
-      description: For a new source, say which API or CLI it would read and how you sign in to it. Many sources fit best as a separate plugin package; see docs/plugins.md.
+      description: For a new source, the API or CLI it would read and how you sign in to it. A source can also be a separate package, see CONTRIBUTING.md.
     validations:
       required: true
   - type: textarea
     id: alternatives
     attributes:
-      label: Alternatives you've considered
+      label: Alternatives you have tried
