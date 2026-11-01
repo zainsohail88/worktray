@@ -367,7 +367,7 @@ function actionButtons(item) {
   return buttons.join("");
 }
 
-// The colored stripe says whose move it is, before any text is read.
+// The colored stripe shows Needs me or Waiting at a glance.
 function rowTone(item) {
   if (item.lane === "waiting") return "wait";
   const tone = reasonTone(item.reason || "");

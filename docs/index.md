@@ -1,6 +1,17 @@
-# worktray design notes
+# worktray documentation
 
-worktray is a single-user FastAPI dashboard on `127.0.0.1`. It reads work from many sources into one SQLite-backed queue, and coding agents reach the same queue through a stdio MCP server. Installation and configuration are in the [README](../README.md).
+Install and run: see the [README](../README.md).
+
+## Using worktray
+
+- [Using worktray](features.md): the tabs and keyboard shortcuts
+- [Sources](sources.md): what each source reads and what it needs
+- [Configuration](configuration.md): settings, environment variables and data
+- [Commands](commands.md): the command line, background service and coding agents
+
+## Design notes
+
+worktray is a FastAPI app on `127.0.0.1` with a SQLite database. Coding agents use the same data through an MCP server over stdio.
 
 - [Technical vision](technical-vision.md): why it is shaped this way
 - [Architecture](architecture.md): processes, modules, refresh flow and entry points

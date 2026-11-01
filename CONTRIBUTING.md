@@ -31,7 +31,7 @@ Example: adding a built-in Linear source.
 3. **Check.** Add `check_linear(store)`, the smallest read that proves the login works, returning a sentence such as "Connected to Linear as Alex".
 4. **Registry.** Add one `Source` row in `worktray/sources/registry.py`. The Settings page, `worktray auth`, `worktray config` and the engine all read it, so nothing else needs editing.
 5. **Tests.** Add `tests/test_linear.py`, covering the happy path, not set up, a refused login and a server error, with `httpx.MockTransport` instead of the network. CI fails if coverage drops below the floor.
-6. **Docs.** Add a row to the Sources table and each variable to the configuration table in `README.md`. `tests/test_docs.py` fails if a variable is missing.
+6. **Docs.** Add a row to the table in `docs/sources.md` and each variable to the table in `docs/configuration.md`. `tests/test_docs.py` fails if either is missing.
 
 ## Code style
 
@@ -62,4 +62,4 @@ Example: adding a built-in Linear source.
 
 ## License
 
-worktray is source available under the [PolyForm Noncommercial License 1.0.0](LICENSE). By contributing, you agree your contributions are licensed the same way.
+By contributing, you agree your contributions are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).

@@ -8,7 +8,7 @@ Most new sources fit best as a plugin package; see [Writing a source plugin](../
 4. Build `Item(key="<name>:<stable id>", source="<name>", ...)`. Source-owned items set `live=True, status="open"`; proposals leave `live=False` and set `list_name`.
 5. Optionally write `check_<name>(store) -> str` that makes the smallest read and returns a sentence.
 6. Add one `Source` row to `BUILTIN` in `worktray/sources/registry.py`: name, label, reader wrapper, interval, description, `group`, `empty_is_valid` for a live source whose empty answer means "no work", settings, secrets and check. If it signs in through another source, set `uses` instead of repeating fields.
-7. Add a row to the README source table and each new variable to the configuration table, then add tests.
+7. Add a row to `docs/sources.md` and each new variable to `docs/configuration.md`, then add tests.
 
 The engine, the Settings page, `worktray auth`, `worktray sources` and `worktray config` pick the source up from its row.
 

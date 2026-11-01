@@ -11,6 +11,6 @@
 - [ ] `uv run pytest --cov` passes (coverage stays at or above the floor in `pyproject.toml`)
 - [ ] `uv run ruff check worktray tests` and `uv run ruff format --check worktray tests` pass
 - [ ] New behaviour has tests, including error cases
-- [ ] New settings are declared on their source and listed in the README configuration table
-- [ ] README / docs / CHANGELOG updated, if behaviour users see changed
+- [ ] New settings are declared on their source and listed in `docs/configuration.md`
+- [ ] Docs and CHANGELOG updated, if behaviour users see changed
 - [ ] No tokens, internal hostnames or workplace data in code, tests, fixtures or screenshots

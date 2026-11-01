@@ -35,7 +35,7 @@ Every write route needs `Origin` equal to `{scheme}://{Host}` or it returns 403,
 
 ## Environment
 
-`WORKTRAY_HOME`, `WORKTRAY_PORT`, `WORKTRAY_SOURCES`, `WORKTRAY_SOURCE_<NAME>_ENABLED`, and `WORKTRAY_<KEY>` for every setting and secret a source declares. The README lists them all; a test keeps that list complete.
+`WORKTRAY_HOME`, `WORKTRAY_PORT`, `WORKTRAY_SOURCES`, `WORKTRAY_SOURCE_<NAME>_ENABLED`, and `WORKTRAY_<KEY>` for every setting and secret a source declares. `docs/configuration.md` lists them all; a test keeps that list complete.
 
 ## External calls
 

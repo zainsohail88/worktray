@@ -1,7 +1,7 @@
 [project]
 name = "worktray"
 version = "0.1.0"
-description = "A local dashboard that gathers your work from Jira, GitHub, Bitbucket, Google Calendar, meeting notes, Slack and AI coding agents into one queue"
+description = "A local dashboard that collects your work from different sources into one view"
 readme = "README.md"
 license = "PolyForm-Noncommercial-1.0.0"
 license-files = ["LICENSE"]
@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # The MCP client and server: the agent MCP server and the public Slack source.
-mcp = ["fastmcp>=3.2,<5"]
+mcp = ["fastmcp>=3.2,<4"]
 all = ["worktray[mcp]"]
 
 [project.scripts]
