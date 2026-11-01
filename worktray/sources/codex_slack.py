@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator
 
 from worktray.models import Batch, Item, now
 from worktray.references import find_references
-from worktray.sources.codex import DATA_RULE, as_data, run_codex
+from worktray.sources.codex import as_data, run_codex
 from worktray.sources.errors import SourceError
 from worktray.store import Store
 
@@ -87,10 +87,8 @@ def _prompt(store: Store) -> str:
         - I promised to do something
         - an existing open Slack item below has a later reply from me that suggests it can be closed
 
-        {DATA_RULE}
-
         Existing open Slack items:
-        {as_data(open_items)}
+        {as_data(open_items, "open_slack_items")}
 
         Return only JSON matching the provided schema.
         Item rules:

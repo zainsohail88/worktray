@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from worktray.models import Batch, Item, ItemEdit, Suggestion
 from worktray.references import find_references, link_targets
-from worktray.sources.codex import DATA_RULE, as_data, run_codex
+from worktray.sources.codex import as_data, run_codex
 from worktray.sources.errors import SourceError
 from worktray.store import Store
 
@@ -62,7 +62,6 @@ def _prompt(stream: list[Item], targets: dict[str, Item]) -> str:
             "status": item.status,
             "opened_at": item.opened_at or item.first_seen,
             "meeting": item.project,
-            "note": item.note,
             "references": item.references,
             "linked_status": item.linked_status,
             "due_date": item.due_date,
@@ -71,13 +70,13 @@ def _prompt(stream: list[Item], targets: dict[str, Item]) -> str:
     ]
     work = [{"reference": reference, "title": item.title, "status": item.source_status} for reference, item in targets.items()]
     return textwrap.dedent(f"""
-        You tidy a personal work queue so the owner triages less. {DATA_RULE}
+        You tidy a personal work queue so the owner triages less.
 
         Stream items (asks from Slack, meeting notes, Confluence and agents):
-        {as_data(asks)}
+        {as_data(asks, "stream_items")}
 
         The owner's open Jira tickets and pull requests:
-        {as_data(work)}
+        {as_data(work, "tickets_and_pull_requests")}
 
         Suggest only changes you are confident about; leave out anything you would describe as likely or possible.
         Return only JSON matching the provided schema.
