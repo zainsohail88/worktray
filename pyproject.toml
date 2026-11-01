@@ -28,7 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # The MCP client and server: the agent MCP server and the public Slack source.
-mcp = ["fastmcp>=3.2,<4"]
+mcp = ["fastmcp>=3.2,<5"]
 all = ["worktray[mcp]"]
 
 [project.scripts]
