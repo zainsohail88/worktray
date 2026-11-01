@@ -5,7 +5,7 @@ take `query`, `source_types` and `time_cutoff` and return `results`, each with `
 and `updated_at`. Private channels and direct
 messages are never read this way; those come through the Codex Slack bridge.
 
-The MCP client library is an optional extra (`worktray[mcp]`), so it is imported only when used.
+The MCP client library is the optional `mcp` extra, so it is imported only when used.
 """
 
 from datetime import datetime, timedelta, timezone
@@ -18,7 +18,7 @@ import warnings
 
 import httpx
 
-from worktray import APP_NAME
+from worktray import APP_NAME, install_command
 from worktray.auth.browser import open_sign_in
 from worktray.auth.mcp_tokens import KeyringTokens, refresh_due
 from worktray.config import Setting, plain_text, single_name, web_url
@@ -39,7 +39,7 @@ SLACK_DISPLAY_NAME = Setting(
 )
 FIELDS = (PUBLIC_SLACK_MCP_URL, PUBLIC_SLACK_MCP_TOOL, SLACK_DISPLAY_NAME)
 MENTION_QUERIES = ("@{name} can you", "@{name} please review", "@{name} could you help", "@{name} any update")
-MISSING_EXTRA = "The MCP client is not installed; install worktray[mcp] to use this source"
+MISSING_EXTRA = f"This needs an extra package. Run {install_command(('mcp',))}"
 
 
 def mcp_available() -> bool:

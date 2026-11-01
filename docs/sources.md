@@ -13,7 +13,7 @@ Every source starts off. Turn on the ones you use in **Settings**, or with `work
 | Google Calendar | Your meetings for the next 14 days | Your own Google OAuth client (see below) |
 | Meeting notes | Your action items from Gemini meeting notes in Google Drive | Google Calendar signed in, the Drive folder, and the names your action items use |
 | Slack | Asks and promises in your DMs and threads | [Codex CLI](https://github.com/openai/codex), with Slack access |
-| Public Slack | Mentions of you in public channels | An MCP server that searches Slack (see below), and the `mcp` extra |
+| Public Slack | Mentions of you in public channels | An MCP server that searches Slack, and the MCP extra (see below) |
 | Finished work | Whether the tickets and pull requests your asks mention are done | Jira, GitHub or Bitbucket |
 | Tidy-up suggestions | Suggested merges, titles and closures for your items | Codex CLI |
 | TeamCity | Why a TeamCity build failed on your pull requests | TeamCity URL and access token |
@@ -31,7 +31,13 @@ Google needs an OAuth client of your own:
 
 ## Public Slack
 
-This source needs an MCP server that can search your Slack, run by your organisation. In the Public Slack settings, enter:
+This source needs an MCP server that can search your Slack, run by your organisation, and the MCP extra:
+
+```sh
+uv tool install 'worktray[mcp] @ git+https://github.com/zainsohail88/worktray'
+```
+
+In the Public Slack settings, enter:
 
 - the server URL
 - the name of its search tool

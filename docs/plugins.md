@@ -62,7 +62,7 @@ SOURCE = Source(
 )
 ```
 
-Install it next to worktray (`uv tool install 'worktray[all]' --with worktray-linear`) and restart. Linear appears in Settings, in `worktray sources` and in `worktray config`, and its variables are `WORKTRAY_LINEAR_TEAM` and `WORKTRAY_LINEAR_API_KEY`.
+Install it next to worktray (`uv tool install 'worktray @ git+https://github.com/zainsohail88/worktray' --with worktray-linear`) and restart. Linear appears in Settings, in `worktray sources` and in `worktray config`, and its variables are `WORKTRAY_LINEAR_TEAM` and `WORKTRAY_LINEAR_API_KEY`.
 
 ## The contract
 

@@ -8,6 +8,7 @@ import sys
 
 import httpx
 
+from worktray import install_command
 from worktray.config import Secret, Setting, enabled_sources, switch_on_if_unset
 from worktray.sources.errors import NotConnectedError, SignInRequired, SourceError
 from worktray.sources.registry import Source, check_for, is_available, registry
@@ -118,7 +119,7 @@ async def run(store: Store, names: list[str], check_only: bool = False, reconnec
     for source in selected:
         print(f"\n{source.label}")
         if not is_available(source):
-            print(f"  Skipped: install worktray[{','.join(source.extras)}] to use this source")
+            print(f"  Skipped: this needs an extra package. Run {install_command(source.extras)}")
             outcomes[source.name] = NOT_SET_UP
             continue
         if source.uses and not source.check:

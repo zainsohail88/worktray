@@ -41,9 +41,8 @@ function intervalHtml(source) {
 function sourceCard(source) {
   const health = state?.sources?.find(found => found.source === source.name);
   const editable = [...source.settings, ...source.secrets].some(field => !field.locked && field.web !== false);
-  const extras = source.extras.join(",");
   const body = [
-    source.available ? "" : `<p class="warn">This needs an extra package. Run <code>uv tool install 'worktray[${esc(extras)}]'</code>, then restart worktray.</p>`,
+    source.available ? "" : `<p class="warn">This needs an extra package. Run <code>${esc(source.install)}</code>, then restart worktray.</p>`,
     source.uses ? `<p class="muted">Uses your ${esc(source.uses_label)} sign-in.</p>` : "",
     ...source.settings.map(field => settingHtml(source, field)),
     ...source.secrets.map(secret => secretHtml(source, secret)),

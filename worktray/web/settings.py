@@ -15,6 +15,7 @@ import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from worktray import install_command
 from worktray.auth.browser import hand_links_to
 from worktray.config import Secret, Setting, enabled_locked, set_source_enabled, source_enabled, switch_on_if_unset
 from worktray.engine import Engine
@@ -77,6 +78,7 @@ def describe(store: Store, sources: dict[str, Source], source: Source) -> dict:
         "enabled_locked": enabled_locked(source.name),
         "available": is_available(source),
         "extras": list(source.extras),
+        "install": install_command(source.extras) if source.extras else "",
         "uses": source.uses,
         "uses_label": parent.label if parent else "",
         "can_check": check_for(sources, source) is not None,

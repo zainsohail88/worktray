@@ -17,17 +17,17 @@ Some sources need their own command-line tool, such as `gh` for GitHub. See [Sou
 ## Install and run
 
 ```sh
-uv tool install 'worktray[all]'
+uv tool install git+https://github.com/zainsohail88/worktray
 worktray serve --open
 ```
 
-In the page that opens, go to **Settings**, turn on the sources you use and fill in their fields.
+Configure the sources you need in **Settings**.
 
-To run from a clone instead:
+## Run from source
 
 ```sh
 git clone https://github.com/zainsohail88/worktray && cd worktray
-uv sync --all-extras
+uv sync
 uv run worktray serve --open
 ```
 

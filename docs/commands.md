@@ -23,7 +23,13 @@ The service file contains only the port, the data folder and `PATH`. Save tokens
 
 Coding agents can read and update your worktray items over MCP: list your items, add and snooze items, propose new ones, draft a standup, brief a meeting, and mark their own tasks as started or finished.
 
-This needs the `mcp` extra, which `worktray[all]` includes. Add worktray to your agent's MCP configuration:
+This needs the MCP extra:
+
+```sh
+uv tool install 'worktray[mcp] @ git+https://github.com/zainsohail88/worktray'
+```
+
+Then add worktray to your agent's MCP configuration:
 
 ```json
 {

@@ -8,7 +8,7 @@ You need [uv](https://docs.astral.sh/uv/getting-started/installation/) on macOS 
 
 ```sh
 git clone https://github.com/zainsohail88/worktray && cd worktray
-uv sync --all-extras                         # .venv with the app, the optional extras and dev tools
+uv sync --all-extras                         # .venv with the app, the MCP extra and dev tools
 uv run pytest --cov                          # tests, with the coverage floor from pyproject.toml
 uv run ruff check worktray tests             # lint
 uv run ruff format worktray tests            # format; CI runs it with --check

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
+from worktray import install_command
 from worktray.briefs import MeetingBrief, StandupNote
 from worktray.briefs import meeting_brief as build_brief
 from worktray.briefs import standup_note as build_standup
@@ -20,7 +21,7 @@ from worktray.store import Store
 if TYPE_CHECKING:
     from fastmcp import FastMCP
 
-MISSING_EXTRA = "The MCP server needs the optional mcp extra: uv tool install 'worktray[mcp]'"
+MISSING_EXTRA = f"The MCP server needs an extra package. Run {install_command(('mcp',))}"
 
 
 class LiveQueue(BaseModel):

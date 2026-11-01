@@ -6,7 +6,7 @@ import getpass
 import os
 import sys
 
-from worktray import APP_NAME, __version__
+from worktray import APP_NAME, __version__, install_command
 from worktray.paths import HOME_ENV, database, home
 
 
@@ -60,7 +60,7 @@ def sources(action: str, name: str | None) -> int:
     if action == "list":
         for source in known.values():
             state = "on " if source_enabled(store, source.name) else "off"
-            missing = "" if is_available(source) else f"  (needs worktray[{','.join(source.extras)}])"
+            missing = "" if is_available(source) else f"  (needs: {install_command(source.extras)})"
             print(f"{state}  {source.name:<16} {source.label}{missing}")
         return 0
     if name not in known:
@@ -138,7 +138,7 @@ def parser() -> argparse.ArgumentParser:
     auth_command.add_argument("--check", action="store_true", help="only check existing connections")
     auth_command.add_argument("--reconnect", action="store_true", help="ask again and sign in again")
 
-    commands.add_parser("mcp", help="serve MCP tools over stdio for coding agents (needs worktray[mcp])")
+    commands.add_parser("mcp", help="serve MCP tools over stdio for coding agents (needs the mcp extra)")
 
     sources_command = commands.add_parser("sources", help="list sources, or turn one on or off")
     sources_command.add_argument("action", nargs="?", choices=["list", "enable", "disable"], default="list")

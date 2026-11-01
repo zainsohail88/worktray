@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import sqlite3
 
+from worktray import install_command
 from worktray.config import enabled_sources
 from worktray.models import Batch, Item, SourceState, now, within_work_window
 from worktray.references import linked_asks
@@ -194,7 +195,7 @@ class Engine:
     async def _read(self, source: str) -> Batch | BaseException:
         spec = self.sources.get(source)
         if spec is not None and not is_available(spec):
-            return NotConnectedError(f"This needs an extra package. Run uv tool install 'worktray[{','.join(spec.extras)}]', then restart worktray.")
+            return NotConnectedError(f"This needs an extra package. Run {install_command(spec.extras)}, then restart worktray.")
         return (await asyncio.gather(asyncio.wait_for(self.adapters[source](), timeout=900), return_exceptions=True))[0]
 
     async def refresh(self, source: str) -> None:
