@@ -69,7 +69,7 @@ def test_teamcity_without_credentials_is_not_connected_rather_than_failed(store)
 def test_teamcity_connection_reports_host_and_version(connected):
     batch = asyncio.run(teamcity.read_teamcity(connected, httpx.MockTransport(lambda request: httpx.Response(200, json={"version": "2026.1"}))))
 
-    assert "ci.example.com" in batch.detail and "2026.1" in batch.detail
+    assert batch.detail == "Connected to ci.example.com, TeamCity 2026.1. Failed checks on your pull requests now show why."
 
 
 def test_teamcity_rejected_token_says_how_to_replace_it(connected):
