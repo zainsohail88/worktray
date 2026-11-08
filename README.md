@@ -6,6 +6,8 @@
 
 worktray is a local dashboard that collects your work from different sources into one view.
 
+Try the [demo](https://worktray.cloud.run). It runs with made-up data.
+
 ## Requirements
 
 - macOS or Linux
