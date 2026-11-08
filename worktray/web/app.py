@@ -63,8 +63,12 @@ class TeamExclusionRequest(BaseModel):
     excluded: bool
 
 
-def create_app(store: Store | None = None, engine: Engine | None = None) -> FastAPI:
-    """Restore saved work for this local process."""
+def create_app(store: Store | None = None, engine: Engine | None = None, demo: bool = False) -> FastAPI:
+    """Restore saved work for this local process.
+
+    With demo=True the app answers on any host name, as the public demo runs behind a hosting
+    provider's address, and Settings cannot be changed. worktray.demo builds that app.
+    """
     store = store if store is not None else Store(database())
     engine = engine if engine is not None else create_engine(store)
 
@@ -81,7 +85,7 @@ def create_app(store: Store | None = None, engine: Engine | None = None) -> Fast
 
     app = FastAPI(title=APP_NAME, docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.engine = engine
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"] if demo else ["localhost", "127.0.0.1"])
 
     @app.middleware("http")
     async def protect(request: Request, call_next):
@@ -107,7 +111,7 @@ def create_app(store: Store | None = None, engine: Engine | None = None) -> Fast
 
     @app.get("/api/state")
     async def state() -> dict:
-        return engine.snapshot()
+        return {**engine.snapshot(), "demo": demo}
 
     @app.get("/api/standup")
     async def standup() -> StandupNote:
@@ -191,6 +195,6 @@ def create_app(store: Store | None = None, engine: Engine | None = None) -> Fast
             raise HTTPException(400, str(error)) from error
         return {"ok": True}
 
-    app.include_router(settings_router(store, engine))
+    app.include_router(settings_router(store, engine, demo))
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
     return app

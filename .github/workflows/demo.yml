@@ -1,0 +1,57 @@
+name: Demo
+
+# Builds the demo image, publishes it to GitHub Container Registry and deploys it to Cloud Run
+# on every push to main. Runs once the repository variables GCP_PROJECT_ID, GCP_REGION,
+# GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT and GCP_RUNTIME_SERVICE_ACCOUNT are set.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy the demo
+    if: vars.GCP_WORKLOAD_IDENTITY_PROVIDER != ''
+    runs-on: ubuntu-latest
+    environment:
+      name: demo
+      url: ${{ steps.deploy.outputs.url }}
+    permissions:
+      contents: read
+      packages: write # publishes the image to GitHub Container Registry
+      id-token: write # signs in to Google Cloud with the workflow's OIDC token
+    env:
+      PROJECT: ${{ vars.GCP_PROJECT_ID }}
+      REGION: ${{ vars.GCP_REGION }}
+      RUNTIME_ACCOUNT: ${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
+      IMAGE: ghcr.io/${{ github.repository }}-demo:${{ github.sha }}
+      SOURCE: ${{ github.server_url }}/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build and publish the image
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        # The source label links the image to this repository, so it takes the repository's access.
+        run: |
+          echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build --label "org.opencontainers.image.source=$SOURCE" -t "$IMAGE" .
+          docker push "$IMAGE"
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+      - name: Deploy to Cloud Run
+        id: deploy
+        run: |
+          gcloud run deploy worktray-demo --image "$IMAGE" --region "$REGION" --project "$PROJECT" \
+            --service-account "$RUNTIME_ACCOUNT" --allow-unauthenticated --max-instances 1 --quiet
+          echo "url=$(gcloud run services describe worktray-demo --region "$REGION" --project "$PROJECT" --format 'value(status.url)')" >> "$GITHUB_OUTPUT"

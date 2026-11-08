@@ -3,7 +3,7 @@
 worktray is one Python package with one command.
 
 - `worktray serve` runs the web server. It is the only process that syncs sources.
-- `worktray mcp` runs an MCP server over stdio. It reads and writes the same SQLite file but never syncs.
+- `worktray mcp` runs an MCP server over stdio. It reads and writes the same SQLite file.
 - `worktray auth`, `worktray sources` and `worktray config` change settings from a terminal.
 
 ## Components
@@ -41,10 +41,10 @@ Engine.start ─▶ one asyncio task per source that is on (900 s timeout)
  Engine.items / snapshot ─▶ GET /api/state ─▶ UI
 ```
 
-- `NotConnectedError` marks the source "not connected", not as an error. Its saved snapshot is dropped.
+- `NotConnectedError` marks the source "not connected". Its saved snapshot is dropped.
 - Any other exception records `error` health and keeps the previous snapshot, with `stale_since` set.
 - Only `SourceError` text reaches the user. Other exceptions are logged and shown by type with a generic message.
-- A source that is off is never scheduled or started and its live items leave the queue. Stored items stay, proposals included, in the dashboard and in the MCP server (`worktray/engine.py::visible_items`).
+- The scheduler skips a source that is off and its live items leave the queue. Stored items stay, proposals included, in the dashboard and in the MCP server (`worktray/engine.py::visible_items`).
 
 ## Settings flow
 

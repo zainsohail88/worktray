@@ -100,6 +100,24 @@ jobs:
           curl -sf http://127.0.0.1:8799/api/config | python -c "import json, sys; assert len(json.load(sys.stdin)['sources']) >= 17"
           kill %1
 
+  demo-image:
+    name: Build and smoke-test the demo image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - run: docker build -t worktray-demo .
+      - name: Run the image with PORT set, as Cloud Run does
+        run: |
+          docker run -d --name demo -e PORT=8080 -p 8080:8080 worktray-demo
+          for attempt in $(seq 1 30); do curl -sf http://127.0.0.1:8080/api/state > /dev/null && break; sleep 1; done
+          curl -sf -H "Host: demo.example.com" http://127.0.0.1:8080/api/state | python3 -c "import json, sys; state = json.load(sys.stdin); assert state['demo'] and state['items']"
+          curl -s -X POST -H "Host: demo.example.com" -H "Origin: http://demo.example.com" -H "Content-Type: application/json" -d '{"enabled": false}' http://127.0.0.1:8080/api/config/jira | python3 -c "import json, sys; assert 'demo' in json.load(sys.stdin)['detail']"
+      - name: Show the container log
+        if: failure()
+        run: docker logs demo
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest

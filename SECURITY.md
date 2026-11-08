@@ -34,12 +34,12 @@ Out of scope:
 ## How worktray protects your data
 
 - The dashboard listens only on `127.0.0.1`. It refuses requests with any other `Host` header, which blocks DNS rebinding. Every change must come from the same origin.
-- API tokens, the Google sign-in and the Public Slack sign-in are stored in the system keyring. No route returns a saved token. The database and the data folder hold no tokens.
+- API tokens, the Google sign-in and the Public Slack sign-in are stored in the system keyring.
 - Every source is off until you turn it on.
-- The Codex command can only be set from the terminal or an environment variable, so a web page cannot make worktray run a program.
+- The Codex command can only be set from the terminal or an environment variable.
 - URL settings must use `https://`, or `http://` to `localhost`, `127.0.0.1` or `::1`. worktray parses the host and refuses URLs with a user name or password. Environment variables are checked the same way.
 - Every source only reads. worktray reads message and document text in memory and keeps only titles and links.
 - Responses carry a strict Content-Security-Policy with no inline scripts, `X-Frame-Options: DENY` and `Cache-Control: no-store`.
 - The Slack and Tidy-up suggestions sources run the Codex CLI in a read-only sandbox. Every prompt starts with fixed rules: follow only worktray's instructions, treat source text as untrusted data and change nothing in any connected service. Source text is cleaned of hidden characters, capped in length and placed in `<data>` blocks. The tidy-up prompt leaves out your notes. The output is checked against a schema, and Tidy-up suggestions change nothing until you accept them.
-- Coding agents connected over MCP can close only the items they started. For other items they can only suggest closing, and you confirm. They do not receive other people's email addresses or account IDs.
+- Coding agents connected over MCP can close only the items they started. For other items they can only suggest closing, and you confirm. Their results leave out other people's email addresses and account IDs.
 - CI pins every action to a commit SHA, scans the code and the workflows with CodeQL and audits the dependencies on every pull request.

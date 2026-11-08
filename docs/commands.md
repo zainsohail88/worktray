@@ -15,11 +15,11 @@
 
 Stop any `worktray serve` you started in a terminal before you install it, as both use the same port.
 
-The service file holds only the port, the data folder and `PATH`. Save tokens in Settings rather than as environment variables when you use the service.
+The service file holds only the port, the data folder and `PATH`. Save tokens in Settings when you use the service.
 
 ## Coding agents
 
-worktray can run as an MCP server, so a coding agent such as Claude Code can read and update your worktray items. The agent can list your items, add, snooze and propose items, write a standup note, brief a meeting and mark its own tasks as started or finished. An agent cannot close your other items. It can only suggest closing them, and you confirm in worktray.
+worktray can run as an MCP server, so a coding agent such as Claude Code can read and update your worktray items. The agent can list your items, add, snooze and propose items, write a standup note, brief a meeting and mark its own tasks as started or finished. For your other items, the agent suggests closing them and you confirm in worktray.
 
 1. Install the MCP extra:
 
@@ -37,4 +37,4 @@ worktray can run as an MCP server, so a coding agent such as Claude Code can rea
    }
    ```
 
-The agent starts `worktray mcp` when it needs it. You do not run it yourself.
+The agent starts `worktray mcp` when it needs it.

@@ -2,8 +2,8 @@
 
 ## Sources
 
-- A reader raises on failure and never returns a partial result. An empty `Batch` means there is no work (`worktray/engine.py::Engine.refresh`).
-- A source that is not set up raises `NotConnectedError`. The page shows it as not connected, not as an error.
+- A reader raises on failure. An empty `Batch` means there is no work (`worktray/engine.py::Engine.refresh`).
+- A source that is not set up raises `NotConnectedError`. The page shows it as not connected.
 - `SourceError` text is shown to the user as written. Keep tokens and raw API responses out of it.
 - HTTP calls go through `connections.get_json`, which retries a 429 up to three times. CLI calls go through `connections.cli_json`, which times out after 45 seconds and hides stderr.
 - A pagination loop fails when the cursor stops moving.
@@ -19,7 +19,7 @@
 
 ## Store
 
-- User decisions win. Inserts use `INSERT OR IGNORE`, so source data never overwrites a stored item (`worktray/store.py::Store.ingest`).
+- User decisions win. Inserts use `INSERT OR IGNORE`, so a stored item keeps the user's decisions (`worktray/store.py::Store.ingest`).
 - Each method's docstring states the invariant it protects. Keep that when adding methods.
 
 ## Auth

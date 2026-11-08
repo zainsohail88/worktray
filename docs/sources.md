@@ -17,7 +17,7 @@ Every source is off until you turn it on in Settings, or set it up with `worktra
 | Finished work | Whether the tickets and pull requests your asks mention are done | Jira, GitHub or Bitbucket |
 | Tidy-up suggestions | Suggested merges, titles and closures for your items | Codex CLI |
 | TeamCity | Why a TeamCity build failed on your pull requests | TeamCity URL and access token |
-| Codex, Claude Code, Cursor, Claude Desktop | Your recent sessions in each app | Nothing. worktray reads their local files. |
+| Codex, Claude Code, Cursor, Claude Desktop | Your recent sessions in each app | Their local files |
 
 The Slack and Tidy-up suggestions sources send item titles and links to the Codex CLI.
 
