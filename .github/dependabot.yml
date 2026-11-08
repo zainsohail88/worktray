@@ -30,3 +30,13 @@ updates:
       actions-security:
         applies-to: security-updates
         patterns: ["*"]
+
+  # The Python base image of the demo Dockerfile.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      docker-security:
+        applies-to: security-updates
+        patterns: ["*"]

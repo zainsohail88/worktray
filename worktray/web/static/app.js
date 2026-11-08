@@ -564,7 +564,7 @@ function renderTeam() {
   const maximum = Math.max(1,...team.map(owner => owner.items.length));
   const count = (owner, kind, value, label) => `<button class="number work-${kind === "jira" ? "tickets" : kind === "prs" ? "prs" : "aged"} ${teamFocus.get(owner.id) === kind ? "active" : ""}" data-team-focus="${kind}" data-owner="${esc(owner.id)}" aria-pressed="${teamFocus.get(owner.id) === kind}" aria-label="Show ${label} for ${esc(owner.name)}">${value}<small>${label}</small></button>`;
   document.querySelectorAll("[data-team-sort]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.teamSort === teamSort)));
-  $("team").innerHTML = team.map(owner => `<details class="team-row" data-owner="${esc(owner.id)}" ${open.has(owner.id) ? "open" : ""}><summary><span class="team-name">${esc(owner.name)}<small>${owner.active} Jira in progress · ${owner.items.length} work items</small></span><span class="workbar" aria-hidden="true"><span></span><span class="pr"></span></span>${count(owner, "jira", owner.jira, "Tickets")}${count(owner, "prs", owner.prs, "PRs")}${count(owner, "aged", owner.aged, "Over 7d")}</summary><div class="team-details">${teamGroups(owner)}<div class="team-roster-action"><button data-team-hide="${esc(owner.id)}" data-team-name="${esc(owner.name)}">Hide member</button></div></div></details>`).join("") || '<div class="empty">No recent work for this team yet. Check the Jira scope above, or whether anyone is hidden.</div>';
+  $("team").innerHTML = team.map(owner => `<details class="team-row" data-owner="${esc(owner.id)}" ${open.has(owner.id) ? "open" : ""}><summary><span class="team-name">${esc(owner.name)}<small>${owner.active} Jira in progress · ${owner.items.length} work item${owner.items.length === 1 ? "" : "s"}</small></span><span class="workbar" aria-hidden="true"><span></span><span class="pr"></span></span>${count(owner, "jira", owner.jira, "Tickets")}${count(owner, "prs", owner.prs, "PRs")}${count(owner, "aged", owner.aged, "Over 7d")}</summary><div class="team-details">${teamGroups(owner)}<div class="team-roster-action"><button data-team-hide="${esc(owner.id)}" data-team-name="${esc(owner.name)}">Hide member</button></div></div></details>`).join("") || '<div class="empty">No recent work for this team yet. Check the Jira scope above, or whether anyone is hidden.</div>';
   // Widths are assigned as DOM properties under the restrictive page CSP.
   $("team").querySelectorAll(".workbar").forEach((bar,index) => {
     bar.children[0].style.width = `${team[index].jira/maximum*100}%`;
@@ -607,6 +607,7 @@ function renderSnapshotNotice() {
     return failed || Date.now() - new Date(snapshot.saved_at).getTime() > staleAfter
       ? [`${label(source)} (${failed ? "sync failed, " : ""}${ago(snapshot.saved_at)})`] : [];
   });
+  $("demo-banner").hidden = !state.demo;
   $("snapshot-notice").hidden = behind.length === 0;
   if (behind.length) $("snapshot-notice").textContent = `Some results are out of date: ${behind.join(", ")}. Sync to refresh them.`;
 }

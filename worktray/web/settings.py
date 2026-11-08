@@ -105,7 +105,10 @@ async def _outcome(action: Action, store: Store, timeout: float) -> dict:
         return {"ok": False, "detail": f"Something went wrong ({type(error).__name__})."}
 
 
-def settings_router(store: Store, engine: Engine) -> APIRouter:
+DEMO_READ_ONLY = "Settings cannot be changed in the demo."
+
+
+def settings_router(store: Store, engine: Engine, demo: bool = False) -> APIRouter:
     router = APIRouter(prefix="/api/config")
     # Sign-in links waiting for the page to open them, by source. The server may run as a service
     # with no display, so the person's own browser opens the link rather than one on the server.
@@ -118,7 +121,12 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
         return source
 
     def describe_all() -> dict:
-        return {"sources": [describe(store, engine.sources, source) for source in engine.sources.values()]}
+        return {"sources": [describe(store, engine.sources, source) for source in engine.sources.values()], "demo": demo}
+
+    def writable() -> None:
+        # The demo has no real accounts, so nothing may be saved, checked or signed in to.
+        if demo:
+            raise HTTPException(403, DEMO_READ_ONLY)
 
     @router.get("")
     async def config() -> dict:
@@ -126,6 +134,7 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
 
     @router.post("/{name}")
     async def update(name: str, body: ConfigUpdate) -> dict:
+        writable()
         source = source_named(name)
         return await asyncio.to_thread(save, source, body)
 
@@ -169,6 +178,7 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
 
     @router.post("/{name}/check")
     async def check(name: str) -> dict:
+        writable()
         action = check_for(engine.sources, source_named(name))
         if action is None:
             raise HTTPException(400, "This source has no connection to check")
@@ -176,6 +186,7 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
 
     @router.post("/{name}/connect")
     async def connect(name: str) -> dict:
+        writable()
         source = source_named(name)
         if source.connect is None:
             raise HTTPException(400, "This source has no browser sign-in")
@@ -194,6 +205,7 @@ def settings_router(store: Store, engine: Engine) -> APIRouter:
 
     @router.post("/{name}/disconnect")
     async def disconnect(name: str) -> dict:
+        writable()
         source = source_named(name)
         if source.disconnect is None:
             raise HTTPException(400, "This source has no saved sign-in to remove")

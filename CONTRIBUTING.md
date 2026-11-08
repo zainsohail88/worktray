@@ -143,6 +143,24 @@ worktray skips a plugin and logs the reason when the plugin fails to import, its
 2. Merge to `main`, then push a tag `vX.Y.Z` that matches the version.
 3. The release workflow tests and builds the package, publishes it to PyPI and creates the GitHub release.
 
+## Publishing the demo
+
+The `Dockerfile` builds the demo: worktray with made-up data and read-only settings. CI builds and tests the image on every pull request.
+
+To publish it on Google Cloud Run:
+
+1. Create a Google Cloud project with billing turned on. Cloud Run needs billing even when use stays within the free allowance.
+2. Install the [gcloud CLI](https://cloud.google.com/sdk/docs/install) and sign in with `gcloud auth login`.
+3. From the repository folder, run:
+
+   ```sh
+   gcloud run deploy worktray-demo --source . --region us-central1 --allow-unauthenticated --max-instances 1 --project PROJECT_ID
+   ```
+
+   The first run asks to turn on the APIs it needs. Cloud Build builds the image from the `Dockerfile`.
+
+`--max-instances 1` keeps one copy running at most, so every visitor sees the same data and use cannot grow past one instance. Set a budget alert on the project as well.
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).

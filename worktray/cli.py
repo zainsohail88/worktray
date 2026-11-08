@@ -16,22 +16,37 @@ def _store():
     return Store(database())
 
 
-def serve(port: int | None, open_browser: bool) -> None:
+LOCAL_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
+def serve(port: int | None, open_browser: bool, host: str = "127.0.0.1", demo: bool = False) -> None:
     import uvicorn
 
     from worktray.service import port as default_port
-    from worktray.web.app import create_app
 
+    # Your real dashboard holds your tokens and work, so only the demo may listen beyond this computer.
+    if host not in LOCAL_HOSTS and not demo:
+        raise SystemExit(f"worktray only listens on this computer. Use --host {host} with --demo for a public demo.")
     os.umask(0o077)
     chosen = port or default_port()
     url = f"http://localhost:{chosen}/"
-    print(f"{APP_NAME} {__version__} on {url} (data in {home()})", flush=True)
+    if demo:
+        from worktray.demo import create_demo_app
+
+        app = create_demo_app()
+        print(f"{APP_NAME} {__version__} demo with sample data on {host}:{chosen}", flush=True)
+    else:
+        from worktray.web.app import create_app
+
+        app = create_app()
+        print(f"{APP_NAME} {__version__} on {url} (data in {home()})", flush=True)
     if open_browser:
         import threading
         import webbrowser
 
         threading.Timer(1.5, webbrowser.open, args=(url,)).start()
-    uvicorn.run(create_app(), host="127.0.0.1", port=chosen, access_log=False)
+    # Behind a hosting provider the demo learns the visitor's https scheme from the proxy headers.
+    uvicorn.run(app, host=host, port=chosen, access_log=False, proxy_headers=demo, forwarded_allow_ips="*" if demo else None)
 
 
 def auth(names: list[str], check_only: bool, reconnect: bool) -> int:
@@ -132,6 +147,8 @@ def parser() -> argparse.ArgumentParser:
     serve_command = commands.add_parser("serve", help="start the dashboard. This is the default command.")
     serve_command.add_argument("--port", type=int, help="port to listen on (default WORKTRAY_PORT or 8765)")
     serve_command.add_argument("--open", action="store_true", help="open the dashboard in the browser")
+    serve_command.add_argument("--demo", action="store_true", help="run a demo with made-up data and read-only settings")
+    serve_command.add_argument("--host", default="127.0.0.1", help="address to listen on. Other than this computer only with --demo.")
 
     auth_command = commands.add_parser("auth", help="set up sources in the terminal")
     auth_command.add_argument("source", nargs="*", help="sources to set up. Leave out to set up every source that is on.")
@@ -161,7 +178,7 @@ def main(argv: list[str] | None = None) -> None:
     if command in ("sources", "config") and args.action != "list" and not (args.name if command == "sources" else args.key):
         root.error(f"{command} {args.action} needs a name")
     if command == "serve":
-        serve(getattr(args, "port", None), getattr(args, "open", False))
+        serve(getattr(args, "port", None), getattr(args, "open", False), getattr(args, "host", "127.0.0.1"), getattr(args, "demo", False))
     elif command == "auth":
         raise SystemExit(auth(args.source, args.check, args.reconnect))
     elif command == "mcp":

@@ -57,7 +57,9 @@ function sourceCard(source) {
 
 function renderSourceSettings() {
   if (!config) return;
-  $("source-settings").innerHTML = config.sources.map(sourceCard).join("");
+  $("source-settings").innerHTML = (config.demo ? '<p class="muted">Settings cannot be changed in the demo.</p>' : "") + config.sources.map(sourceCard).join("");
+  // The demo has no real accounts, so its source cards are shown but cannot be changed.
+  if (config.demo) $("source-settings").querySelectorAll("input, select, button").forEach(node => { node.disabled = true; });
 }
 
 function showResult(name, outcome) {
