@@ -172,8 +172,11 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
+    from worktray.logs import setup
+
     root = parser()
     args = root.parse_args(argv)
+    setup()
     command = args.command or "serve"
     if command in ("sources", "config") and args.action != "list" and not (args.name if command == "sources" else args.key):
         root.error(f"{command} {args.action} needs a name")
