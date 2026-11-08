@@ -13,7 +13,7 @@ In the Work table:
 - Star an item to mark it Up next. Snooze it until this afternoon, tomorrow or after your next meeting. Mark it done or dismiss it.
 - The strip above the table shows your next meeting and the free time before it. Brief lists the tickets and pull requests that the meeting mentions.
 - A Slack ask that mentions one of your tickets or pull requests shows under that item. If it mentions someone else's ticket, the ticket status shows next to it, such as `ABC-123 In Testing · 1 PR merged`.
-- Tidy-up suggestions propose merges, links, clearer titles, due dates and items to close. Nothing changes until you accept a suggestion.
+- Tidy-up suggestions propose merges, links, clearer titles, due dates and items to close. A suggestion changes your items when you accept it.
 
 | Key | Action |
 |---|---|

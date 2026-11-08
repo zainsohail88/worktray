@@ -1,5 +1,4 @@
-# The public demo: worktray with made-up data and read-only settings.
-# Cloud Run sets PORT. Locally: docker build -t worktray-demo . && docker run -p 8080:8080 worktray-demo
+# The public demo: worktray with made-up data and read-only settings. Listens on PORT.
 FROM python:3.13-slim
 
 RUN pip install --no-cache-dir uv==0.13.4 \

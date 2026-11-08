@@ -11,7 +11,7 @@ Defined in `worktray/models.py::Item`. Stream items live in the `items` table. L
 | `key` | `<source>:<stable id>`, or the pull request URL for GitHub and Bitbucket |
 | `status` | `proposed`, `open`, `done` or `dismissed` |
 | `live` | Owned by the source and replaced on each sync |
-| `personal` | Shown in My work, not only in the team view |
+| `personal` | Shown in My work |
 | `up_next`, `list_name`, `snoozed_until`, `due_date` | Your own changes |
 | `lane` | `needs_me` or `waiting` on live items, empty otherwise |
 | `close_suggested`, `close_hint` | Set when the tickets or pull requests an item names are done |
@@ -25,7 +25,7 @@ Rules:
 
 - `url` and `checks_url` must be `https://`, `http://` to `localhost`, `127.0.0.1` or `::1`, or start with `claude://`, `codex://` or `cursor://file/`. The host is parsed and a URL with a user name is refused (`worktray/models.py::Item.safe_url`).
 - A done or dismissed item cannot change status (`worktray/store.py::Store.edit`).
-- `ingest` never overwrites a row. It only replaces the link, adds new `references` and sets `close_suggested` on items that are still open. It rejects live items (`worktray/store.py::Store.ingest`).
+- `ingest` inserts new rows. On an existing row it replaces the link, adds new `references` and sets `close_suggested` if the item is still open. It rejects live items (`worktray/store.py::Store.ingest`).
 - A live item accepts only dismissal and changes to note, list, up next, due date and snooze. The title belongs to the source (`worktray/store.py::Store.annotate`).
 - `snoozed_until` needs a time zone. An empty string wakes the item and closing an item clears it (`worktray/models.py::ItemEdit.aware_timestamp`).
 

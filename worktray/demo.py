@@ -1,8 +1,7 @@
-"""A public demo: the real dashboard with made-up data, read-only settings and no real sources.
+"""A public demo: the dashboard with made-up data and read-only settings.
 
-`worktray serve --demo` starts it. The data lives in a new temporary folder and the keyring is
-replaced by one in memory, so the demo never reads the visitor's or the server's own files,
-tokens or accounts. Every name, link and ticket below is invented.
+`worktray serve --demo` starts it. The data lives in a new temporary folder and tokens in memory.
+Every name, link and ticket below is made up.
 """
 
 import asyncio

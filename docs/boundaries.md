@@ -18,10 +18,10 @@ Every write route needs `Origin` equal to `{scheme}://{Host}`, or it returns 403
 | `POST /api/settings/refresh-interval` | `{source, seconds \| null}`. Seconds is one of 600, 1800, 3600, 7200 or 14400 |
 | `POST /api/settings/auto-refresh` | `{enabled}`. Pauses or resumes scheduled syncs |
 | `POST /api/team/exclusions` | `{owner_id, excluded}` |
-| `GET /api/config` | Every source with its fields, secrets (set or not, never the value), lock state and actions |
+| `GET /api/config` | Every source with its fields, secrets (whether each is set), lock state and actions |
 | `POST /api/config/{source}` | `{enabled?, settings?, secrets?, clear?}`. 400 for an unknown or invalid field, 403 for a terminal-only setting such as `codex_command`, 409 for a field set by an environment variable, 503 when the keyring is unavailable |
 | `POST /api/config/{source}/check` | Runs the source's login check. Always 200 with `{ok, detail}` |
-| `POST /api/config/{source}/connect` | Runs a browser sign-in, for up to 200 seconds. The sign-in link goes to the page, not to a browser on the server |
+| `POST /api/config/{source}/connect` | Runs a browser sign-in, for up to 200 seconds. The page shows the sign-in link |
 | `GET /api/config/{source}/sign-in-link` | `{url}`. The link a running sign-in is waiting on, or empty. The page polls it |
 | `POST /api/config/{source}/disconnect` | Removes a saved browser sign-in |
 

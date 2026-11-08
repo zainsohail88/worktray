@@ -8,9 +8,9 @@ worktray uses the first value it finds:
 2. The value saved in Settings, or with `worktray config set`.
 3. The default.
 
-Tokens are saved in the system keyring. Settings shows whether a token is saved, never the token itself.
+Tokens are saved in the system keyring. Settings shows whether a token is saved.
 
-The Codex command decides which program worktray runs, so Settings cannot change it. Set it with `worktray config set codex_command '...'` or `WORKTRAY_CODEX_COMMAND`.
+Set the Codex command with `worktray config set codex_command '...'` or `WORKTRAY_CODEX_COMMAND`. Settings shows it read-only, as it decides which program worktray runs.
 
 `worktray config` lists every setting with its variable and current value.
 
@@ -51,8 +51,8 @@ worktray keeps its database in:
 - Linux: `~/.local/share/worktray`
 - The folder in `WORKTRAY_HOME`, if set
 
-The database holds your items, decisions, settings and the last result from each source. worktray keeps titles and links, not message or document text.
+The database holds your items, decisions, settings and the last result from each source. From messages and documents, worktray keeps only titles and links.
 
 Tokens stay in the system keyring, separately for each data folder. On a Linux machine with no keyring, set tokens as environment variables.
 
-The dashboard listens only on `127.0.0.1`, so other machines cannot reach it.
+The dashboard listens only on `127.0.0.1`.

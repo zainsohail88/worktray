@@ -24,7 +24,7 @@ def serve(port: int | None, open_browser: bool, host: str = "127.0.0.1", demo: b
 
     from worktray.service import port as default_port
 
-    # Your real dashboard holds your tokens and work, so only the demo may listen beyond this computer.
+    # The dashboard holds your tokens and work, so only the demo listens on other addresses.
     if host not in LOCAL_HOSTS and not demo:
         raise SystemExit(f"worktray only listens on this computer. Use --host {host} with --demo for a public demo.")
     os.umask(0o077)

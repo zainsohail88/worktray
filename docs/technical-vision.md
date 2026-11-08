@@ -3,10 +3,10 @@
 ## Principles
 
 - Local. One person on one machine. The dashboard listens on `127.0.0.1`, the database is a file in the user's data folder and tokens stay in the system keyring.
-- Read-only. worktray never writes to Jira, GitHub, Slack or any other source. It reads, summarises and links back.
+- Read-only. worktray reads Jira, GitHub, Slack and the other sources, summarises them and links back.
 - User decisions win. Once the user accepts, dismisses or closes an item, no sync can undo it. A sync replaces only what the source owns.
-- A failed sync never shows as an empty list. The last good result stays on screen with its age.
-- Every source is optional and starts off. A source that is not set up shows as not connected, not as an error.
+- After a failed sync, the last good result stays on screen with its age.
+- Every source is optional and starts off. A source that is not set up shows as not connected.
 
 ## Decisions
 

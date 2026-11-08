@@ -124,7 +124,7 @@ def settings_router(store: Store, engine: Engine, demo: bool = False) -> APIRout
         return {"sources": [describe(store, engine.sources, source) for source in engine.sources.values()], "demo": demo}
 
     def writable() -> None:
-        # The demo has no real accounts, so nothing may be saved, checked or signed in to.
+        # The demo uses made-up accounts, so its settings are read-only.
         if demo:
             raise HTTPException(403, DEMO_READ_ONLY)
 

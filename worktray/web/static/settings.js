@@ -58,7 +58,7 @@ function sourceCard(source) {
 function renderSourceSettings() {
   if (!config) return;
   $("source-settings").innerHTML = (config.demo ? '<p class="muted">Settings cannot be changed in the demo.</p>' : "") + config.sources.map(sourceCard).join("");
-  // The demo has no real accounts, so its source cards are shown but cannot be changed.
+  // The demo uses made-up accounts, so its source cards are read-only.
   if (config.demo) $("source-settings").querySelectorAll("input, select, button").forEach(node => { node.disabled = true; });
 }
 
