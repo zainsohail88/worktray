@@ -6,7 +6,7 @@
 
 worktray is a local dashboard that collects your work from different sources into one view.
 
-> ### Try the demo at [worktray.cloud.run](https://worktray.cloud.run)
+> ### Try the demo at [worktray.zainbaloch.com](https://worktray.zainbaloch.com)
 
 ## Requirements
 
