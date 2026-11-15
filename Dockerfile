@@ -1,5 +1,5 @@
 # The public demo: worktray with made-up data and read-only settings. Listens on PORT.
-FROM python:3.13-slim
+FROM python:3.15-slim
 
 RUN pip install --no-cache-dir uv==0.13.4 \
     && useradd --create-home --uid 10001 worktray
